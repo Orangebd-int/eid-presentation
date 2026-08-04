@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sint Maarten eID — WSO2 Hosted Login Architecture Flow (Pattern 2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #070b1d;
+      --bg-card: #0e1635;
+      --bg-card-alt: #131c42;
+      --border-color: #1e2952;
+      --border-highlight: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      selection-background-color: var(--accent-blue);
+      selection-color: #fff;
+    }
+
+    /* Ambient Background Glows */
+    .glow-1 {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Official Header */
+    .top-banner {
+      background: #090d24;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .compliance-pill {
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Main Deck Navigation Header */
+    header.main-header {
+      background: rgba(11, 16, 43, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Controls */
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #18234d;
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--accent-emerald), #059669);
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
+      border: none;
+      color: #fff;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* 4-COLUMN RULES & ACTIVITIES GRID */
+    .rules-card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 1200px) {
+      .rules-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .rules-card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rule-box {
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .rule-box:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+    }
+
+    .rule-title {
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rule-desc {
+      font-size: 11px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Flow Stage Card Grid */
+    .architecture-flow-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    @media (max-width: 1200px) {
+      .architecture-flow-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .architecture-flow-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .node-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 230px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .node-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(6, 182, 212, 0.2);
+    }
+
+    .node-card.active-highlight {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 28px rgba(6, 182, 212, 0.4);
+      background: linear-gradient(135deg, #091a2e 0%, #0d2948 100%);
+    }
+
+    .node-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .node-card.active-highlight .node-step-num {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+    }
+
+    .node-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .node-title {
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .node-sub {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .node-desc {
+      font-size: 11px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .node-badge {
+      display: inline-block;
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    /* Directional Flow Arrows */
+    .flow-arrow-right {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+
+    /* Section Panels */
+    .panel-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Sequence Steps List */
+    .seq-step-item {
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .seq-step-item:hover {
+      border-color: var(--border-highlight);
+      background: #0a0f28;
+    }
+
+    .seq-step-item.active {
+      border-color: var(--accent-cyan);
+      background: linear-gradient(135deg, #081a2e 0%, #0d2847 100%);
+    }
+
+    .seq-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .seq-content {
+      flex: 1;
+    }
+
+    .seq-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .seq-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .seq-route {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+
+    .seq-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Key Specs Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      .specs-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .spec-card {
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .spec-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .spec-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .spec-val {
+      font-size: 13px;
+      font-weight: 900;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      header.main-header, .top-banner, .deck-controls { display: none !important; }
+      .node-card, .panel-section, .seq-step-item, .spec-card, .rule-box { background: #fff !important; color: #000 !important; border-color: #ccc !important; box-shadow: none !important; }
+      .node-title, .seq-title, .spec-val, .rule-title { color: #000 !important; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Background Glows -->
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Top Official Header -->
+  <div class="top-banner">
+    <div class="flag-badge">
+      <span>🇸🇽</span>
+      <span>Government of Sint Maarten • Pattern 2 Architecture</span>
+    </div>
+    <div>
+      <span class="compliance-pill">✓ Pattern 2: WSO2 Hosted Login &amp; API Verification Flow</span>
+    </div>
+  </div>
+
+  <!-- Main Presentation Header -->
+  <header class="main-header">
+    <div class="brand-section">
+      <div class="logo-icon">🌐</div>
+      <div>
+        <h1 class="brand-title">WSO2 Hosted Login Architecture Flow (Pattern 2)</h1>
+        <p class="brand-subtitle">RP App → WSO2 Hosted Form → eID API Verification → WSO2 MFA → RP App</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="deck-controls">
+      <button class="btn" onclick="window.open('/architecture-diagram-wso2-database.html', '_self')">
+        ← Prev: Part 1 (WSO2 DB Sync)
+      </button>
+      <button class="btn" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo)); color: #fff; border: none;" onclick="window.open('/rp-widget-management.html', '_blank')">
+        🔀 Multi-RP Widget Deck ↗
+      </button>
+      <button class="btn btn-emerald" id="btn-play" onclick="togglePlayFlow()">
+        ▶️ Play Presentation Mode
+      </button>
+      <button class="btn btn-blue" onclick="window.open('/architecture-diagram.html', '_self')">
+        Next: Part 3 (eID Federated Flow) →
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- 4-COLUMN RULES & ACTIVITIES GRID -->
+    <div class="rules-card-grid">
+      
+      <!-- Card 1: Pattern 2 Concept -->
+      <div class="rule-box" style="border-color: rgba(6, 182, 212, 0.4);">
+        <div>
+          <div class="rule-title" style="color: var(--accent-cyan);">
+            <span>🌐</span> Pattern 2: WSO2 Hosted Login UI
+          </div>
+          <p class="rule-desc">
+            In Pattern 2, <strong>WSO2 Identity Server hosts the citizen login form</strong> directly. Citizens input their eID Number / Email and Password on WSO2's branded login interface.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2: API Verification -->
+      <div class="rule-box" style="border-color: rgba(59, 130, 246, 0.4);">
+        <div>
+          <div class="rule-title" style="color: var(--accent-blue);">
+            <span>🔌</span> eID REST API Verification
+          </div>
+          <p class="rule-desc">
+            WSO2 validates citizen inputs by calling the <strong>eID Platform REST API</strong> (`/api/v1/auth/verify-credentials`) to verify credentials &amp; check eID lifecycle state (`active`, `revoked`).
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3: WSO2 MFA Enforcement -->
+      <div class="rule-box" style="border-color: rgba(168, 85, 247, 0.4);">
+        <div>
+          <div class="rule-title" style="color: var(--accent-purple);">
+            <span>🔑</span> WSO2 Managed 2FA / MFA
+          </div>
+          <p class="rule-desc">
+            Upon successful eID API verification, WSO2 Identity Server directly executes the 2-Factor Authentication step (TOTP Authenticator, SMS OTP, or WebAuthn FIDO2 passkey).
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 4: Local eID & Key2Data Policy -->
+      <div class="rule-box" style="border-color: rgba(16, 185, 129, 0.4);">
+        <div>
+          <div class="rule-title" style="color: var(--accent-emerald);">
+            <span>⚡</span> High Performance Caching
+          </div>
+          <p class="rule-desc">
+            The eID API answers WSO2 in &lt; 50ms using local Redis/PostgreSQL. <strong>Key2Data → Civil Registry</strong> is called <strong>only when demographic updates or initial enrolment is required</strong>.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EVALUATION BANNER: ADVANTAGES & TRADE-OFFS (PATTERN 2A) -->
+    <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+      <h3 style="font-size: 16px; font-weight: 900; color: var(--accent-cyan); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        ⚖️ Pattern 2A Evaluation: Advantages &amp; Trade-offs (WSO2 Hosted Form + eID REST API Verification)
+      </h3>
+      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+        In Pattern 2A, WSO2 hosts the citizen login page and delegates credential validation to the eID Platform via real-time REST API (<code>/api/v1/auth/verify-credentials</code>).
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px;">
+        <!-- Advantages -->
+        <div style="background: #090e24; border-radius: 12px; padding: 18px; border: 1px solid rgba(16, 185, 129, 0.4);">
+          <div style="font-size: 13px; font-weight: 900; color: var(--accent-emerald); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            👍 Key Advantages (Pros)
+          </div>
+          <ul style="font-size: 12px; color: var(--text-muted); line-height: 1.6; list-style: none;">
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-emerald); font-weight: 900;">✓</span> <strong>Instant Revocation &amp; Suspension Enforcement:</strong> eID Core validates credentials in real-time. If an eID is revoked or suspended, access is blocked immediately with zero sync delay.</li>
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-emerald); font-weight: 900;">✓</span> <strong>Single Credential Vault (Single Source of Truth):</strong> Password hashes &amp; WebAuthn keys remain strictly inside the eID Vault, avoiding credential duplication across external databases.</li>
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-emerald); font-weight: 900;">✓</span> <strong>Sub-50ms Response Time:</strong> eID Core answers WSO2 in &lt; 50ms using local Redis/PostgreSQL caching without calling Key2Data/Civil Registry during routine login.</li>
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-emerald); font-weight: 900;">✓</span> <strong>Full Annex E Audit Log Integrity:</strong> Every verification attempt is logged in real-time within the eID Core Audit Trail (`authentication_audit_logs`).</li>
+          </ul>
+        </div>
+
+        <!-- Trade-offs -->
+        <div style="background: #090e24; border-radius: 12px; padding: 18px; border: 1px solid rgba(245, 158, 11, 0.4);">
+          <div style="font-size: 13px; font-weight: 900; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            ⚖️ Architecture Trade-offs (Cons &amp; Constraints)
+          </div>
+          <ul style="font-size: 12px; color: var(--text-muted); line-height: 1.6; list-style: none;">
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-amber); font-weight: 900;">⚠️</span> <strong>Synchronous Outbound API Dependency:</strong> Citizen login requires an active HTTP REST connection between WSO2 IS and eID Core (`/api/v1/auth/verify-credentials`).</li>
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-amber); font-weight: 900;">⚠️</span> <strong>WSO2 Hosted UI Customisation Effort:</strong> WSO2 IS login templates must be customized using Sint Maarten government brand guidelines.</li>
+            <li style="margin-bottom: 6px; padding-left: 18px; position: relative;"><span style="position: absolute; left: 0; color: var(--accent-amber); font-weight: 900;">⚠️</span> <strong>Custom Authenticator Requirement:</strong> WSO2 requires configuring a custom REST Authenticator extension to communicate with the eID Core API endpoint.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELYING PARTY ONBOARDING & CONFORMANCE SECTION (US-6.1 / US-6.2 / US-6.3) -->
+    <div class="panel-section">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🚀</span> Relying Party (RP) Onboarding for SSO (Pattern 2 Workflow)
+        </div>
+        <span class="compliance-pill">US-6.1 • US-6.2 • US-6.3 Compliant</span>
+      </div>
+
+      <!-- Core Principle Callout Banner -->
+      <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; font-size: 11px; color: #e2e8f0; line-height: 1.6;">
+        <strong style="color: var(--accent-cyan); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">
+          🔑 Key Architecture Rule for RP Onboarding:
+        </strong>
+        Every Relying Party (COCI, Tax, Health) <strong>connects directly to WSO2 IS 7.0 (The Identity Broker)</strong>, NOT directly to the eID Platform. WSO2 manages OAuth2 <code>client_id</code> credentials, hosted login UI binding, OIDC token issuance, and Pairwise Pseudonyms (PPID), while verifying credentials via the eID REST API.
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div style="background: #060919; border: 1px solid var(--border-color); border-radius: 14px; padding: 18px;">
+          <span style="font-size: 9px; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase;">Step 1 • US-6.1</span>
+          <h4 style="font-size: 13px; font-weight: 900; color: #fff; margin: 4px 0 6px 0;">Self-Service RP Registration</h4>
+          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            RP Developer registers their application inside WSO2 Developer Console, obtaining <code>client_id</code>, <code>client_secret</code>, and configuring authorized redirect URIs.
+          </p>
+        </div>
+
+        <div style="background: #060919; border: 1px solid var(--border-color); border-radius: 14px; padding: 18px;">
+          <span style="font-size: 9px; font-weight: 800; color: var(--accent-blue); text-transform: uppercase;">Step 2 • API Access</span>
+          <h4 style="font-size: 13px; font-weight: 900; color: #fff; margin: 4px 0 6px 0;">eID API Scope Authorization</h4>
+          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            WSO2 binds the hosted login form to eID REST API endpoint (<code>/verify-credentials</code>) using secure API client token authorization.
+          </p>
+        </div>
+
+        <div style="background: #060919; border: 1px solid var(--border-color); border-radius: 14px; padding: 18px;">
+          <span style="font-size: 9px; font-weight: 800; color: var(--accent-amber); text-transform: uppercase;">Step 3 • US-6.2</span>
+          <h4 style="font-size: 13px; font-weight: 900; color: #fff; margin: 4px 0 6px 0;">Sandbox Test Identities</h4>
+          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            RP tests authentication against sandbox identities in 4 distinct lifecycle states: <code>active</code>, <code>pre_provisioned</code>, <code>under_review</code>, and <code>revoked</code>.
+          </p>
+        </div>
+
+        <div style="background: #060919; border: 1px solid var(--border-color); border-radius: 14px; padding: 18px;">
+          <span style="font-size: 9px; font-weight: 800; color: var(--accent-emerald); text-transform: uppercase;">Step 4 • US-6.3</span>
+          <h4 style="font-size: 13px; font-weight: 900; color: #fff; margin: 4px 0 6px 0;">Conformance Verification</h4>
+          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            Automated conformance harness validates PKCE (<code>S256</code>), pairwise claims (PPID), and OIDC Back-Channel Logout before go-live approval.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP FLOW GRID: 6 NODE STAGES -->
+    <div class="architecture-flow-grid">
+      
+      <!-- Stage 1: RP App -->
+      <div class="node-card" id="node-1">
+        <div>
+          <div class="node-step-num">1</div>
+          <div class="node-icon">💻</div>
+          <h3 class="node-title">1. Relying Party App</h3>
+          <p class="node-sub">COCI / Tax / Health</p>
+          <p class="node-desc">Citizen clicks "Sign In" on RP App and is redirected to WSO2 IS 7.0 for authentication.</p>
+        </div>
+        <div>
+          <span class="node-badge">OIDC Auth Code Request</span>
+        </div>
+        <div class="flow-arrow-right">→</div>
+      </div>
+
+      <!-- Stage 2: WSO2 Hosted Login Form -->
+      <div class="node-card" id="node-2">
+        <div>
+          <div class="node-step-num">2</div>
+          <div class="node-icon">🌐</div>
+          <h3 class="node-title">2. WSO2 Hosted Login Form</h3>
+          <p class="node-sub">WSO2 IS 7.0 UI</p>
+          <p class="node-desc">WSO2 renders the login form. Citizen inputs eID Number or Email and Password.</p>
+        </div>
+        <div>
+          <span class="node-badge">WSO2 Form Input</span>
+        </div>
+        <div class="flow-arrow-right">→</div>
+      </div>
+
+      <!-- Stage 3: API Call to eID Platform -->
+      <div class="node-card" id="node-3">
+        <div>
+          <div class="node-step-num">3</div>
+          <div class="node-icon">🔌</div>
+          <h3 class="node-title">3. eID REST API Verify</h3>
+          <p class="node-sub">POST /verify-credentials</p>
+          <p class="node-desc">WSO2 calls eID Core API via secure HTTPS. eID verifies credentials &amp; active status.</p>
+        </div>
+        <div>
+          <span class="node-badge">REST API Call</span>
+        </div>
+        <div class="flow-arrow-right">→</div>
+      </div>
+
+      <!-- Stage 4: Key2Data Sync (On-Demand) -->
+      <div class="node-card" id="node-4">
+        <div>
+          <div class="node-step-num">4</div>
+          <div class="node-icon">🔄</div>
+          <h3 class="node-title">4. Key2Data (On-Demand)</h3>
+          <p class="node-sub">Key2Data → Civil Registry</p>
+          <p class="node-desc">eID Platform queries Key2Data ONLY on enrolment or profile refresh. Routine login is local.</p>
+        </div>
+        <div>
+          <span class="node-badge">On-Demand Sync</span>
+        </div>
+        <div class="flow-arrow-right">→</div>
+      </div>
+
+      <!-- Stage 5: WSO2 MFA Execution -->
+      <div class="node-card" id="node-5">
+        <div>
+          <div class="node-step-num">5</div>
+          <div class="node-icon">🔑</div>
+          <h3 class="node-title">5. WSO2 Managed MFA</h3>
+          <p class="node-sub">FIDO2 / TOTP / SMS OTP</p>
+          <p class="node-desc">WSO2 executes 2-Factor Authentication with citizen to satisfy eIDAS High assurance.</p>
+        </div>
+        <div>
+          <span class="node-badge">WSO2 2FA Step</span>
+        </div>
+        <div class="flow-arrow-right">→</div>
+      </div>
+
+      <!-- Stage 6: Token Return to RP -->
+      <div class="node-card" id="node-6">
+        <div>
+          <div class="node-step-num">6</div>
+          <div class="node-icon">🎉</div>
+          <h3 class="node-title">6. OIDC Tokens to RP App</h3>
+          <p class="node-sub">Signed JWT &amp; PPID Claims</p>
+          <p class="node-desc">WSO2 signs JWT ID Token with pairwise claims &amp; redirects citizen back to RP App logged in!</p>
+        </div>
+        <div>
+          <span class="node-badge">Signed JWT / PPID</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DETAILED SEQUENCE STEPS -->
+    <div class="panel-section">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🔄</span> Pattern 2 Sequence &amp; API Call Specification
+        </div>
+        <span class="compliance-pill">Click any step to highlight node</span>
+      </div>
+
+      <div class="seq-step-item active" onclick="highlightNode(1)">
+        <div class="seq-num">01</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 1: RP App Redirects Citizen to WSO2 Hosted Login</h4>
+            <span class="seq-route">GET /oauth2/authorize?client_id=coci-rp&amp;response_type=code</span>
+          </div>
+          <p class="seq-desc">
+            The citizen clicks "Sign In with eID" on the Relying Party application (e.g. COCI Portal). The RP App redirects the browser to WSO2 IS 7.0 with PKCE authorization parameters.
+          </p>
+        </div>
+      </div>
+
+      <div class="seq-step-item" onclick="highlightNode(2)">
+        <div class="seq-num">02</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 2: Citizen Inputs Credentials on WSO2 Hosted Form</h4>
+            <span class="seq-route">WSO2 IS 7.0 Hosted HTML Form</span>
+          </div>
+          <p class="seq-desc">
+            WSO2 IS 7.0 displays its hosted login UI. The citizen enters their <strong>eID Number</strong> (`EID-SXM-26-XXXXXX-C`) or registered <strong>Email Address</strong> and password.
+          </p>
+        </div>
+      </div>
+
+      <div class="seq-step-item" onclick="highlightNode(3)">
+        <div class="seq-num">03</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 3: WSO2 Calls eID Platform REST API to Verify Credentials</h4>
+            <span class="seq-route">POST https://eid-api.gov.sx/api/v1/auth/verify-credentials</span>
+          </div>
+          <p class="seq-desc">
+            WSO2 IS 7.0 executes an outbound HTTPS REST call to the Sint Maarten eID Platform backend. The eID API verifies the password hash, checks eID lifecycle state (`active`, `revoked`), and returns citizen identity attributes in &lt; 50ms.
+          </p>
+        </div>
+      </div>
+
+      <div class="seq-step-item" onclick="highlightNode(4)">
+        <div class="seq-num">04</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 4: Key2Data → Civil Registry Sync (On-Demand Only)</h4>
+            <span class="seq-route">POST /api/v1/key2data/civil-registry/verify-bsn</span>
+          </div>
+          <p class="seq-desc">
+            The eID API uses local Redis/PostgreSQL cache for routine logins. It calls <strong>Key2Data → Civil Registry only during initial enrolment or when demographic updates are required</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="seq-step-item" onclick="highlightNode(5)">
+        <div class="seq-num">05</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 5: WSO2 Executes 2-Factor Authentication (MFA)</h4>
+            <span class="seq-route">WSO2 MFA Engine (TOTP / SMS / FIDO2)</span>
+          </div>
+          <p class="seq-desc">
+            Upon successful eID API verification, WSO2 IS 7.0 Prompts the citizen for 2-Factor Authentication (TOTP Authenticator code or SMS OTP) to achieve <strong>eIDAS Level High</strong> assurance.
+          </p>
+        </div>
+      </div>
+
+      <div class="seq-step-item" onclick="highlightNode(6)">
+        <div class="seq-num">06</div>
+        <div class="seq-content">
+          <div class="seq-head">
+            <h4 class="seq-title">Step 6: WSO2 Issues OIDC Tokens &amp; PPID Claims to RP App</h4>
+            <span class="seq-route">HTTP 302 Redirect to RP App /callback?code=AUTH_CODE</span>
+          </div>
+          <p class="seq-desc">
+            WSO2 IS 7.0 issues the authorization code, exchanges it for signed JWT ID Tokens with Pairwise Pseudonymous Identifiers (PPID), and completes the citizen login into the RP App!
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- KEY TECHNICAL SPECIFICATIONS -->
+    <div class="specs-grid">
+      <div class="spec-card">
+        <div class="spec-icon">🌐</div>
+        <div class="spec-title">Hosted UI Engine</div>
+        <div class="spec-val">WSO2 IS 7.0 Login Form</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-icon">🔌</div>
+        <div class="spec-title">Verification Method</div>
+        <div class="spec-val">eID REST API (/verify)</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-icon">🔑</div>
+        <div class="spec-title">MFA Handler</div>
+        <div class="spec-val">WSO2 Managed 2FA / FIDO2</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-icon">⚡</div>
+        <div class="spec-title">API Speed</div>
+        <div class="spec-val">&lt; 50ms Local Cache</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Animation Engine -->
+  <script>
+    let activeStep = 1;
+    let timer = null;
+    let isPlaying = false;
+
+    function highlightNode(step) {
+      activeStep = step;
+      document.querySelectorAll('.node-card').forEach((card, idx) => {
+        if (idx + 1 === step) {
+          card.classList.add('active-highlight');
+        } else {
+          card.classList.remove('active-highlight');
+        }
+      });
+
+      document.querySelectorAll('.seq-step-item').forEach((item, idx) => {
+        if (idx + 1 === step) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    function togglePlayFlow() {
+      const btn = document.getElementById('btn-play');
+      if (isPlaying) {
+        clearInterval(timer);
+        isPlaying = false;
+        btn.innerHTML = '▶️ Play Presentation Mode';
+        btn.style.background = 'linear-gradient(135deg, var(--accent-emerald), #059669)';
+      } else {
+        isPlaying = true;
+        btn.innerHTML = '⏸️ Pause Presentation Mode';
+        btn.style.background = 'linear-gradient(135deg, var(--accent-amber), #d97706)';
+        
+        highlightNode(activeStep);
+        timer = setInterval(() => {
+          activeStep = (activeStep % 6) + 1;
+          highlightNode(activeStep);
+        }, 2200);
+      }
+    }
+
+    // Default highlight first node
+    highlightNode(1);
+  </script>
+
+</body>
+</html>

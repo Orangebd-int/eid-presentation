@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sint Maarten eID — Master Architecture Comparison &amp; Final Recommendation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #070b1d;
+      --bg-card: #0e1635;
+      --bg-card-alt: #131c42;
+      --border-color: #1e2952;
+      --border-highlight: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      selection-background-color: var(--accent-blue);
+      selection-color: #fff;
+    }
+
+    /* Ambient Background Glows */
+    .glow-1 {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Official Header */
+    .top-banner {
+      background: #090d24;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .compliance-pill {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Main Deck Navigation Header */
+    header.main-header {
+      background: rgba(11, 16, 43, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-emerald), var(--accent-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Controls */
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #18234d;
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--accent-emerald), #059669);
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      border: none;
+      color: #fff;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Side-by-Side Grid */
+    .side-by-side-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+
+    @media (max-width: 1024px) {
+      .side-by-side-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pattern-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pattern-card.recommended {
+      border-color: var(--accent-emerald);
+      box-shadow: 0 12px 36px rgba(16, 185, 129, 0.25);
+    }
+
+    .rec-ribbon {
+      position: absolute;
+      top: 18px;
+      right: -32px;
+      background: linear-gradient(135deg, var(--accent-emerald), #059669);
+      color: #000;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 6px 36px;
+      transform: rotate(45deg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .pattern-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pattern-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .pattern-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .pattern-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Flow Stepper Mini */
+    .mini-flow {
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .flow-tag {
+      color: var(--accent-cyan);
+      font-weight: 800;
+    }
+
+    /* Pros & Cons Section */
+    .pros-cons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .pro-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .con-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .box-head {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .pro-head { color: var(--accent-emerald); }
+    .con-head { color: var(--accent-red); }
+
+    .bullet-list {
+      list-style: none;
+      font-size: 11px;
+      color: var(--text-main);
+      space-y: 6px;
+    }
+
+    .bullet-list li {
+      margin-bottom: 6px;
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .pro-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent-emerald);
+      font-weight: 900;
+    }
+
+    .con-list li::before {
+      content: '✕';
+      position: absolute;
+      left: 0;
+      color: var(--accent-red);
+      font-weight: 900;
+    }
+
+    /* Comparison Matrix Table */
+    .panel-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .matrix-table th {
+      background: #060919;
+      color: var(--text-muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .matrix-table tr:hover td {
+      background: #090f2b;
+    }
+
+    .check-yes {
+      color: var(--accent-emerald);
+      font-weight: 800;
+    }
+
+    .check-no {
+      color: var(--accent-red);
+      font-weight: 800;
+    }
+
+    /* Recommendation Banner Box */
+    .recommendation-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+      border: 2px solid var(--accent-emerald);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .rec-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .rec-icon {
+      font-size: 32px;
+    }
+
+    .rec-title {
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--accent-emerald);
+      letter-spacing: 0.5px;
+    }
+
+    .rec-text {
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      header.main-header, .top-banner, .deck-controls { display: none !important; }
+      .pattern-card, .panel-section, .recommendation-banner, .mini-flow, .pro-box, .con-box { background: #fff !important; color: #000 !important; border-color: #ccc !important; box-shadow: none !important; }
+      .pattern-title, .panel-title, .rec-title, td, th { color: #000 !important; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Background Glows -->
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Top Official Header -->
+  <div class="top-banner">
+    <div class="flag-badge">
+      <span>🇸🇽</span>
+      <span>Government of Sint Maarten • Executive Technical Decision Deck</span>
+    </div>
+    <div>
+      <span class="compliance-pill">★ Official Recommendation: Pattern 1 (eID Federated IDP)</span>
+    </div>
+  </div>
+
+  <!-- Main Presentation Header -->
+  <header class="main-header">
+    <div class="brand-section">
+      <div class="logo-icon">📊</div>
+      <div>
+        <h1 class="brand-title">Sint Maarten eID Master Architecture Comparison</h1>
+        <p class="brand-subtitle">Side-by-Side Analysis, Advantages/Disadvantages &amp; Final Recommendation</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="deck-controls">
+      <button class="btn" onclick="window.open('/architecture-diagram.html', '_self')">
+        ← Prev: Part 3 (eID Federated)
+      </button>
+      <button class="btn" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo)); color: #fff; border: none;" onclick="window.open('/rp-widget-management.html', '_blank')">
+        🔀 Multi-RP Widget Deck ↗
+      </button>
+      <button class="btn btn-emerald" onclick="window.print()">
+        🖨️ Print / PDF Export
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- SIDE-BY-SIDE ARCHITECTURE COMPARISON -->
+    <div class="side-by-side-grid">
+      
+      <!-- PATTERN 1 CARD (RECOMMENDED) -->
+      <div class="pattern-card recommended">
+        <div class="rec-ribbon">RECOMMENDED</div>
+
+        <div class="pattern-header">
+          <div class="pattern-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">🪪</div>
+          <div>
+            <h3 class="pattern-title" style="color: var(--accent-emerald);">Pattern 1: eID Federated IDP</h3>
+            <p class="pattern-sub">eID Core Hosts Login UI &amp; FIDO2 Passkey Ceremony</p>
+          </div>
+        </div>
+
+        <div class="mini-flow">
+          <span class="flow-tag">RP App</span> → <span class="flow-tag">WSO2 Broker</span> → <span class="flow-tag">eID Core IDP (Login &amp; FIDO2)</span> → <span class="flow-tag">Key2Data (On-Demand)</span> → <span class="flow-tag">Tokens to RP</span>
+        </div>
+
+        <div class="pros-cons-grid">
+          <!-- Advantages -->
+          <div class="pro-box">
+            <div class="box-head pro-head">✓ Key Advantages</div>
+            <ul class="bullet-list pro-list">
+              <li><strong>Native FIDO2 Passkeys</strong>: Full support for Apple Touch ID, Face ID &amp; YubiKeys.</li>
+              <li><strong>Zero Password Exposure</strong>: WSO2 never touches raw citizen passwords.</li>
+              <li><strong>eIDAS High Compliant</strong>: Hardware token binding at IDP layer.</li>
+              <li><strong>Sub-50ms Speed</strong>: eID local Redis caching for routine logins.</li>
+              <li><strong>Privacy First</strong>: Isolated identity vault with PPID support.</li>
+            </ul>
+          </div>
+
+          <!-- Disadvantages -->
+          <div class="con-box">
+            <div class="box-head con-head">✕ Trade-offs</div>
+            <ul class="bullet-list con-list">
+              <li>Requires browser redirection to <code>id.gov.sx</code> domain.</li>
+              <li>Requires eID team to maintain citizen login UI templates.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PATTERN 2 CARD (ALTERNATIVE) -->
+      <div class="pattern-card">
+        
+        <div class="pattern-header">
+          <div class="pattern-icon" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">🌐</div>
+          <div>
+            <h3 class="pattern-title" style="color: var(--accent-cyan);">Pattern 2: WSO2 Hosted Form</h3>
+            <p class="pattern-sub">WSO2 Hosts Login UI &amp; Calls eID REST API</p>
+          </div>
+        </div>
+
+        <div class="mini-flow">
+          <span class="flow-tag">RP App</span> → <span class="flow-tag">WSO2 Hosted Form</span> → <span class="flow-tag">eID REST API (/verify)</span> → <span class="flow-tag">WSO2 MFA Step</span> → <span class="flow-tag">Tokens to RP</span>
+        </div>
+
+        <div class="pros-cons-grid">
+          <!-- Advantages -->
+          <div class="pro-box">
+            <div class="box-head pro-head">✓ Key Advantages</div>
+            <ul class="bullet-list pro-list">
+              <li>Single UI template managed inside WSO2 admin dashboard.</li>
+              <li>Simpler setup for legacy back-office internal apps.</li>
+              <li>Centralized WSO2 step-up authentication rules.</li>
+            </ul>
+          </div>
+
+          <!-- Disadvantages -->
+          <div class="con-box">
+            <div class="box-head con-head">✕ Trade-offs</div>
+            <ul class="bullet-list con-list">
+              <li><strong>No Native FIDO2 Passkeys</strong>: Cannot run WebAuthn ceremony natively inside WSO2 form.</li>
+              <li><strong>Security Risk</strong>: Broker layer processes raw citizen passwords.</li>
+              <li>Higher API network latency (~180ms per login).</li>
+              <li>Harder to achieve eIDAS Level High certification.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- DETAILED FEATURE COMPARISON MATRIX TABLE -->
+    <div class="panel-section">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📋</span> Technical Feature Comparison Matrix
+        </div>
+        <span class="compliance-pill">Standardized Criteria</span>
+      </div>
+
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Architecture Criteria</th>
+            <th>Pattern 1: eID Federated IDP (Recommended)</th>
+            <th>Pattern 2: WSO2 Hosted Form</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>eIDAS Compliance Level</strong></td>
+            <td class="check-yes">✓ Level High (Hardware Passkey Bound)</td>
+            <td class="check-no">⚡ Level Substantial (Password/SMS)</td>
+          </tr>
+          <tr>
+            <td><strong>FIDO2 WebAuthn Passkeys</strong></td>
+            <td class="check-yes">✓ Native Support (Touch ID, Face ID, YubiKey)</td>
+            <td class="check-no">✕ Restricted / Complex WebAuthn Delegation</td>
+          </tr>
+          <tr>
+            <td><strong>Citizen Credential Security</strong></td>
+            <td class="check-yes">✓ 100% Isolated in eID Vault</td>
+            <td class="check-no">✕ Passwords Transferred to Broker Layer</td>
+          </tr>
+          <tr>
+            <td><strong>Login Performance (SLA)</strong></td>
+            <td class="check-yes">✓ Ultra-Fast (&lt; 50ms Local Cache)</td>
+            <td>⚡ REST API Overhead (~180ms)</td>
+          </tr>
+          <tr>
+            <td><strong>Key2Data &amp; Civil Registry Call</strong></td>
+            <td class="check-yes">✓ On-Demand Only (Initial / Profile Sync)</td>
+            <td class="check-yes">✓ On-Demand Only (Initial / Profile Sync)</td>
+          </tr>
+          <tr>
+            <td><strong>UIN Privacy Rule</strong></td>
+            <td class="check-yes">✓ UIN Strictly Internal (Hidden)</td>
+            <td class="check-yes">✓ UIN Strictly Internal (Hidden)</td>
+          </tr>
+          <tr>
+            <td><strong>PPID Pairwise Claims Support</strong></td>
+            <td class="check-yes">✓ Full OIDC PPID Support</td>
+            <td class="check-yes">✓ Full OIDC PPID Support</td>
+          </tr>
+          <tr>
+            <td><strong>RP Onboarding &amp; Conformance (US-6.1-6.3)</strong></td>
+            <td class="check-yes">✓ Automated Sandbox (/admin/sandbox) &amp; Conformance Test Suite</td>
+            <td class="check-yes">✓ WSO2 Console Onboarding &amp; Conformance Harness</td>
+          </tr>
+          <tr>
+            <td><strong>Maintenance &amp; Scalability</strong></td>
+            <td class="check-yes">✓ Independent IDP Scaling</td>
+            <td>⚡ Dependent on WSO2 Node Cluster</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FINAL EXECUTIVE RECOMMENDATION BANNER -->
+    <div class="recommendation-banner">
+      <div class="rec-head">
+        <div class="rec-icon">🏆</div>
+        <div>
+          <h2 class="rec-title">Final Executive Technical Recommendation</h2>
+          <p style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Ministry of General Affairs • Sint Maarten eID Platform</p>
+        </div>
+      </div>
+      
+      <p class="rec-text">
+        <strong>1. Primary Production Standard — Pattern 1 (eID Federated IDP):</strong>
+        <br>
+        We strongly recommend <strong>Pattern 1</strong> as the primary national standard for all public-facing citizen applications (COCI Portal, Tax &amp; Revenue Portal, Public Health Registry). Pattern 1 provides native <strong>FIDO2 WebAuthn Passkey support</strong> (Apple Touch ID, Face ID, YubiKeys), guarantees strict <strong>eIDAS Level High security certification</strong>, and ensures zero citizen credential exposure to intermediate broker layers.
+        <br><br>
+        <strong>2. Optional Hybrid Co-existence:</strong>
+        <br>
+        The eID Core Architecture natively supports both patterns simultaneously. Pattern 2 can be retained as an optional fallback connector for legacy internal back-office staff applications that require simple form embedding.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>

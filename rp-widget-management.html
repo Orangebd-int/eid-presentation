@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sint Maarten eID — Multi-RP Widget Management &amp; SSO Portal Switching Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #070b1d;
+      --bg-card: #0e1635;
+      --bg-card-alt: #131c42;
+      --border-color: #1e2952;
+      --border-highlight: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      selection-background-color: var(--accent-blue);
+      selection-color: #fff;
+    }
+
+    /* Ambient Background Glows */
+    .glow-1 {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Official Header */
+    .top-banner {
+      background: #090d24;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .compliance-pill {
+      background: rgba(168, 85, 247, 0.12);
+      color: var(--accent-purple);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Main Deck Navigation Header */
+    header.main-header {
+      background: rgba(11, 16, 43, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.3);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Controls */
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #18234d;
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--accent-emerald), #059669);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* RP SWITCHER TOP WIDGET BAR */
+    .rp-switcher-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 20px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .rp-tabs {
+      display: flex;
+      gap: 12px;
+    }
+
+    .rp-tab-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: #060919;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rp-tab-btn:hover {
+      border-color: var(--border-highlight);
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .rp-tab-btn.active-rp1 {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      border-color: #60a5fa;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .rp-tab-btn.active-rp2 {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      border-color: #fbbf24;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+
+    .rp-tab-btn.active-rp3 {
+      background: linear-gradient(135deg, #047857, #059669);
+      border-color: #34d399;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Live Portal Simulator Viewport */
+    .portal-simulator-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    .simulator-top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .portal-badge-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sso-status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Claims Grid */
+    .claims-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .claims-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .claim-box {
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .claim-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .claim-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      word-break: break-all;
+    }
+
+    /* 3-RP Management Grid Cards */
+    .rp-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+
+    @media (max-width: 1024px) {
+      .rp-matrix-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .rp-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-4px);
+    }
+
+    .rp-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .rp-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .rp-card-title {
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .rp-card-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .spec-list {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #cbd5e1;
+      space-y: 8px;
+    }
+
+    .spec-list div {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .spec-list label {
+      font-size: 9px;
+      color: var(--text-muted);
+      display: block;
+      text-transform: uppercase;
+    }
+
+    .ppid-tag {
+      color: var(--accent-purple);
+      font-weight: 800;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      header.main-header, .top-banner, .deck-controls, .rp-switcher-bar { display: none !important; }
+      .portal-simulator-card, .rp-card, .claim-box { background: #fff !important; color: #000 !important; border-color: #ccc !important; box-shadow: none !important; }
+      .portal-badge-title, .rp-card-title, .claim-value { color: #000 !important; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Background Glows -->
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Top Official Header -->
+  <div class="top-banner">
+    <div class="flag-badge">
+      <span>🇸🇽</span>
+      <span>Government of Sint Maarten • Multi-Relying Party Widget Management</span>
+    </div>
+    <div>
+      <span class="compliance-pill">✓ Multi-RP SSO &amp; Back-Channel Single Sign-Out (SLO)</span>
+    </div>
+  </div>
+
+  <!-- Main Presentation Header -->
+  <header class="main-header">
+    <div class="brand-section">
+      <div class="logo-icon">🔀</div>
+      <div>
+        <h1 class="brand-title">Multi-RP Widget Management &amp; SSO Deck</h1>
+        <p class="brand-subtitle">Seamless Switching between RP1 (COCI) ↔ RP2 (Tax) ↔ RP3 (Health)</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="deck-controls">
+      <button class="btn btn-purple" onclick="triggerGlobalSlo()">
+        🚪 Execute Global Single Sign-Out (SLO)
+      </button>
+      <button class="btn btn-emerald" onclick="window.print()">
+        🖨️ Print / PDF Export
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- TOP INTERACTIVE RP SWITCHER WIDGET BAR -->
+    <div class="rp-switcher-bar">
+      <div>
+        <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Live Relying Party SSO Portal Switcher Widget:
+        </span>
+        <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase;">Select Active Relying Party Portal</h3>
+      </div>
+
+      <div class="rp-tabs">
+        <button class="rp-tab-btn active-rp1" id="tab-rp1" onclick="switchRp(1)">
+          <span>🏢</span> RP1: COCI Portal
+        </button>
+        <button class="rp-tab-btn" id="tab-rp2" onclick="switchRp(2)">
+          <span>💶</span> RP2: Tax Portal
+        </button>
+        <button class="rp-tab-btn" id="tab-rp3" onclick="switchRp(3)">
+          <span>🏥</span> RP3: SZV Health Portal
+        </button>
+      </div>
+    </div>
+
+    <!-- LIVE PORTAL SIMULATOR VIEWPORT -->
+    <div class="portal-simulator-card" id="portal-card">
+      <div class="simulator-top-nav">
+        <div class="portal-badge-title" id="portal-title-display">
+          <span style="font-size: 24px;">🏢</span> RP1: Sint Maarten Chamber of Commerce COCI Portal (http://coci.sm.test)
+        </div>
+        <span class="sso-status-badge" id="sso-status-tag">✓ OIDC SSO Active • Session Reused</span>
+      </div>
+
+      <!-- Claims Output Box -->
+      <div class="claims-grid">
+        <div class="claim-box">
+          <div class="claim-label">Authenticated Citizen</div>
+          <div class="claim-value" id="claim-name">Max Mustermann</div>
+        </div>
+
+        <div class="claim-box">
+          <div class="claim-label">Issued Pairwise Identifier (PPID sub)</div>
+          <div class="claim-value ppid-tag" id="claim-ppid">ppid_coci_849201938_x9</div>
+        </div>
+
+        <div class="claim-box">
+          <div class="claim-label">OIDC OAuth Client ID</div>
+          <div class="claim-value" style="color: var(--accent-cyan);" id="claim-clientid">client_coci_sm_prod</div>
+        </div>
+      </div>
+
+      <!-- Action Row -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: #060919; border: 1px solid var(--border-color); border-radius: 14px; padding: 16px;">
+        <div style="font-size: 11px; color: var(--text-muted);">
+          <strong style="color: var(--accent-emerald);">Privacy Rule Enforced:</strong> Raw UIN is strictly hidden. Each RP receives a distinct pairwise pseudonymous subject identifier (PPID).
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" id="btn-next-rp" onclick="rotateRp(1)">
+            Switch to Next RP →
+          </button>
+          <button class="btn" style="color: var(--accent-red); border-color: rgba(239,68,68,0.4);" onclick="triggerSingleRpLogout()">
+            Sign Out of Active RP
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3-RP MANAGEMENT MATRIX GRID -->
+    <div class="rp-matrix-grid">
+      
+      <!-- RP1 Card -->
+      <div class="rp-card" id="rp-card-1" style="border-color: rgba(59, 130, 246, 0.4);">
+        <div>
+          <div class="rp-card-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="rp-card-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue);">🏢</div>
+              <div>
+                <h3 class="rp-card-title" style="color: var(--accent-blue);">RP1: COCI Portal</h3>
+                <p class="rp-card-sub">http://coci.sm.test</p>
+              </div>
+            </div>
+            <span class="sso-status-badge" id="rp1-badge">ACTIVE</span>
+          </div>
+
+          <div class="spec-list">
+            <div>
+              <label>CLIENT ID</label>
+              <code>client_coci_sm_prod</code>
+            </div>
+            <div>
+              <label>PAIRWISE PPID SUB</label>
+              <code class="ppid-tag">ppid_coci_849201938_x9</code>
+            </div>
+            <div>
+              <label>AUTHORIZED SCOPES</label>
+              <code>openid profile email phone</code>
+            </div>
+            <div>
+              <label>BACK-CHANNEL LOGOUT URL</label>
+              <code>https://coci.sm.test/api/slo</code>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-blue" style="width: 100%; margin-top: 16px; justify-content: center;" onclick="switchRp(1)">
+          Switch to RP1 Portal
+        </button>
+      </div>
+
+      <!-- RP2 Card -->
+      <div class="rp-card" id="rp-card-2" style="border-color: rgba(245, 158, 11, 0.4);">
+        <div>
+          <div class="rp-card-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="rp-card-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">💶</div>
+              <div>
+                <h3 class="rp-card-title" style="color: var(--accent-amber);">RP2: Tax Portal</h3>
+                <p class="rp-card-sub">http://tax.sm.test</p>
+              </div>
+            </div>
+            <span class="sso-status-badge" id="rp2-badge">ACTIVE</span>
+          </div>
+
+          <div class="spec-list">
+            <div>
+              <label>CLIENT ID</label>
+              <code>client_tax_revenue_sm</code>
+            </div>
+            <div>
+              <label>PAIRWISE PPID SUB</label>
+              <code class="ppid-tag">ppid_tax_930182741_k4</code>
+            </div>
+            <div>
+              <label>AUTHORIZED SCOPES</label>
+              <code>openid profile bsn_claim</code>
+            </div>
+            <div>
+              <label>BACK-CHANNEL LOGOUT URL</label>
+              <code>https://tax.sm.test/oidc/backchannel-logout</code>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn" style="width: 100%; margin-top: 16px; justify-content: center; background: linear-gradient(135deg, var(--accent-amber), #d97706); color:#000; font-weight:900;" onclick="switchRp(2)">
+          Switch to RP2 Portal
+        </button>
+      </div>
+
+      <!-- RP3 Card -->
+      <div class="rp-card" id="rp-card-3" style="border-color: rgba(16, 185, 129, 0.4);">
+        <div>
+          <div class="rp-card-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="rp-card-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">🏥</div>
+              <div>
+                <h3 class="rp-card-title" style="color: var(--accent-emerald);">RP3: SZV Health Portal</h3>
+                <p class="rp-card-sub">http://health.sm.test</p>
+              </div>
+            </div>
+            <span class="sso-status-badge" id="rp3-badge">ACTIVE</span>
+          </div>
+
+          <div class="spec-list">
+            <div>
+              <label>CLIENT ID</label>
+              <code>client_szv_health_registry</code>
+            </div>
+            <div>
+              <label>PAIRWISE PPID SUB</label>
+              <code class="ppid-tag">ppid_health_441209812_m7</code>
+            </div>
+            <div>
+              <label>AUTHORIZED SCOPES</label>
+              <code>openid profile medical_status</code>
+            </div>
+            <div>
+              <label>BACK-CHANNEL LOGOUT URL</label>
+              <code>https://health.sm.test/logout/backchannel</code>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-emerald" style="width: 100%; margin-top: 16px; justify-content: center;" onclick="switchRp(3)">
+          Switch to RP3 Portal
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JavaScript Simulator Engine -->
+  <script>
+    let activeRp = 1;
+    let rpSessions = {
+      1: true,
+      2: true,
+      3: true
+    };
+
+    const rpData = {
+      1: {
+        title: '🏢 RP1: Chamber of Commerce COCI Portal (http://coci.sm.test)',
+        clientId: 'client_coci_sm_prod',
+        ppid: 'ppid_coci_849201938_x9',
+        activeClass: 'active-rp1'
+      },
+      2: {
+        title: '💶 RP2: Tax &amp; Inland Revenue Portal (http://tax.sm.test)',
+        clientId: 'client_tax_revenue_sm',
+        ppid: 'ppid_tax_930182741_k4',
+        activeClass: 'active-rp2'
+      },
+      3: {
+        title: '🏥 RP3: SZV Public Health Registry (http://health.sm.test)',
+        clientId: 'client_szv_health_registry',
+        ppid: 'ppid_health_441209812_m7',
+        activeClass: 'active-rp3'
+      }
+    };
+
+    function switchRp(num) {
+      activeRp = num;
+      const data = rpData[num];
+
+      // Update Tabs
+      [1, 2, 3].forEach(n => {
+        const tab = document.getElementById(`tab-rp${n}`);
+        tab.className = 'rp-tab-btn';
+        if (n === num) {
+          tab.classList.add(rpData[n].activeClass);
+        }
+      });
+
+      // Update Simulator Card
+      document.getElementById('portal-title-display').innerHTML = data.title;
+      document.getElementById('claim-clientid').innerText = data.clientId;
+      document.getElementById('claim-ppid').innerText = data.ppid;
+
+      const tag = document.getElementById('sso-status-tag');
+      if (rpSessions[num]) {
+        tag.innerText = '✓ OIDC SSO Active • Session Reused';
+        tag.style.background = 'rgba(16, 185, 129, 0.15)';
+        tag.style.color = 'var(--accent-emerald)';
+        tag.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      } else {
+        tag.innerText = '✕ Session Terminated (Logged Out)';
+        tag.style.background = 'rgba(239, 68, 68, 0.15)';
+        tag.style.color = 'var(--accent-red)';
+        tag.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      }
+    }
+
+    function rotateRp(delta) {
+      let next = activeRp + delta;
+      if (next > 3) next = 1;
+      if (next < 1) next = 3;
+      switchRp(next);
+    }
+
+    function triggerSingleRpLogout() {
+      rpSessions[activeRp] = false;
+      document.getElementById(`rp${activeRp}-badge`).innerText = 'TERMINATED';
+      document.getElementById(`rp${activeRp}-badge`).style.color = 'var(--accent-red)';
+      switchRp(activeRp);
+    }
+
+    function triggerGlobalSlo() {
+      [1, 2, 3].forEach(n => {
+        rpSessions[n] = false;
+        const b = document.getElementById(`rp${n}-badge`);
+        b.innerText = 'SLO REVOKED';
+        b.style.color = 'var(--accent-red)';
+      });
+      switchRp(activeRp);
+      alert('⚡ OIDC Back-Channel Single Sign-Out (SLO) executed! Active OIDC token sessions revoked across RP1, RP2, and RP3 simultaneously.');
+    }
+
+    // Default load RP1
+    switchRp(1);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sint Maarten eID — Relying Party (RP) SSO Onboarding Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #060913;
+      --bg-card: #0c1226;
+      --bg-card-hover: #121a36;
+      --border-color: #1e2952;
+      --border-bright: #3b82f6;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --code-bg: #020617;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; font-weight: 800; }
+
+    /* Top Bar */
+    .top-banner {
+      background: linear-gradient(90deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .gov-flag { display: flex; align-items: center; gap: 10px; color: var(--accent-cyan); }
+    .gov-flag span { font-size: 16px; }
+
+    /* Header */
+    .header {
+      padding: 32px 40px;
+      background: rgba(12, 18, 38, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .title-box h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .title-box p { color: var(--text-muted); font-size: 13px; }
+
+    .nav-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      color: #fff;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo)); border: none; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3); }
+    .btn-purple { background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo)); border: none; }
+
+    /* Container */
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
+
+    /* Rules Banner Grid */
+    .rules-banner-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .rule-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .rule-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 3px;
+    }
+    .rule-card.rule-1::before { background: var(--accent-emerald); }
+    .rule-card.rule-2::before { background: var(--accent-blue); }
+    .rule-card.rule-3::before { background: var(--accent-purple); }
+
+    .rule-title { font-size: 14px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .rule-card.rule-1 .rule-title { color: var(--accent-emerald); }
+    .rule-card.rule-2 .rule-title { color: var(--accent-cyan); }
+    .rule-card.rule-3 .rule-title { color: var(--accent-purple); }
+    .rule-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+    /* Step Timeline */
+    .section-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title span {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-cyan);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .step-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .step-num {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    .step-title-text { font-size: 18px; font-weight: 800; }
+    .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+
+    /* Code Block & Tabs */
+    .code-container {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .code-header {
+      background: #090d1e;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .code-tabs { display: flex; gap: 8px; }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .tab-btn.active { background: var(--border-color); color: #fff; }
+    
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      padding: 20px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    code { font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); }
+
+    /* Troubleshooting Table */
+    .error-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+    .error-table th, .error-table td {
+      padding: 14px 18px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+    .error-table th { background: #090d1e; color: var(--accent-cyan); font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+    .error-table tr:nth-child(even) { background: rgba(255,255,255,0.01); }
+
+    /* Callout Note */
+    .note-box {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-top: 16px;
+    }
+    .note-box strong { color: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Banner -->
+  <div class="top-banner">
+    <div class="gov-flag">
+      <span>🇸🇽</span> Sint Maarten eID Platform • Architecture &amp; Integration Specifications
+    </div>
+    <div style="color: var(--text-muted); font-size: 10px;">
+      US-6.1 • US-6.2 • US-6.3 Standardized Onboarding Framework
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="title-box">
+      <h1>🚀 Relying Party (RP) SSO Onboarding Guide</h1>
+      <p>Step-by-Step Developer Guide for Single Sign-On Integration via WSO2 IS 7.0 Identity Broker</p>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="/architecture-diagram-wso2-hosted.html" class="btn">← Part 1: WSO2 Hosted Flow</a>
+      <a href="/architecture-diagram.html" class="btn">⚡ Part 2: eID Federated Flow</a>
+      <a href="/architecture-master-presentation.html" class="btn btn-primary">🏆 Part 3: Master Deck</a>
+      <a href="/rp-widget-management.html" class="btn btn-purple">🔀 Multi-RP Widget Deck</a>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <div class="container">
+
+    <!-- 3 Golden Rules -->
+    <div class="rules-banner-grid">
+      <div class="rule-card rule-1">
+        <div class="rule-title">
+          <span>⚡</span> Rule 1: Zero Backend Code Changes
+        </div>
+        <div class="rule-desc">
+          <strong>No code changes in backend <code>Program.cs</code> are ever needed.</strong> RP applications onboard 100% dynamically at runtime via database entries or WSO2 REST APIs without app restarts.
+        </div>
+      </div>
+
+      <div class="rule-card rule-2">
+        <div class="rule-title">
+          <span>🌐</span> Rule 2: Connect via WSO2 IS Broker
+        </div>
+        <div class="rule-desc">
+          Every Relying Party (COCI, Tax, Health, Fintech) <strong>connects directly to WSO2 IS 7.0 (Identity Broker)</strong>, NOT directly to eID. WSO2 handles OAuth2 client IDs, redirect URIs, and OIDC token issuing.
+        </div>
+      </div>
+
+      <div class="rule-card rule-3">
+        <div class="rule-title">
+          <span>🔒</span> Rule 3: Pairwise Privacy (PPID)
+        </div>
+        <div class="rule-desc">
+          Internal citizen <strong>UIN is strictly hidden</strong>. WSO2 issues a Pairwise Pseudonymous Identifier (PPID) unique to each RP app to prevent cross-app citizen tracking.
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-title">
+      🧭 6-Step Onboarding Workflow <span>Self-Service Roadmap</span>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 1</span>
+          <span class="step-title-text" style="margin-left: 12px;">Developer Account &amp; Sandbox Access</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-emerald); font-weight: 800;">Self-Service • Instant Access</span>
+      </div>
+      <p class="step-desc">
+        The RP developer registers their organisation on the <strong>eID Developer Portal (<code>/admin/sandbox</code>)</strong>. Developers can explore pre-seeded sandbox credentials immediately for local prototyping.
+      </p>
+      <div class="note-box">
+        <strong>🧪 Default Testing Credentials:</strong><br>
+        • Sandbox Client ID: <code>eiMgOByxPuwybGw2CKYW9nJl8_oa</code><br>
+        • Sandbox Client Secret: <code>2d0bcwOjhvF9OXEDzGlv1boUAiMa</code><br>
+        • Active Citizen Test User: <code>sandbox.active@eid.sm</code> / Password: <code>Sandbox123!</code>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 2</span>
+          <span class="step-title-text" style="margin-left: 12px;">OIDC Client Registration on WSO2 IS 7.0</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 800;">Automated API / UI Registration</span>
+      </div>
+      <p class="step-desc">
+        Register your RP application in <strong>WSO2 IS 7.0</strong> to generate your production OAuth2 <code>client_id</code> and <code>client_secret</code>, and configure your callback redirect URI.
+      </p>
+      
+      <div class="code-container">
+        <div class="code-header">
+          <span>bash — Automated Registration via WSO2 REST API</span>
+          <span>POST https://localhost:9443/api/server/v1/applications</span>
+        </div>
+        <pre><code># 1. Register Application in WSO2 IS 7.0
+curl -k -X POST -H "Content-Type: application/json" \
+  -u admin:admin \
+  -d '{
+        "name": "coci",
+        "description": "Chamber of Commerce & Industry Portal",
+        "claimConfiguration": {
+          "dialect": "LOCAL",
+          "requestedClaims": [
+            {"claim": {"uri": "http://wso2.org/claims/emailaddress"}, "mandatory": true},
+            {"claim": {"uri": "http://wso2.org/claims/givenname"}, "mandatory": false}
+          ]
+        }
+      }' "https://localhost:9443/api/server/v1/applications"
+
+# 2. Configure OIDC Inbound Protocol & Allowed Redirect Regex
+curl -k -X PUT -H "Content-Type: application/json" \
+  -u admin:admin \
+  -d '{
+        "clientId": "eiMgOByxPuwybGw2CKYW9nJl8_oa",
+        "clientSecret": "2d0bcwOjhvF9OXEDzGlv1boUAiMa",
+        "callbackURLs": ["regexp=http://(coci\\.test|coci\\.sm\\.test|127\\.0\\.0\\.1:8000|localhost:8000)/auth/wso2/callback"],
+        "grantTypes": ["authorization_code", "refresh_token"],
+        "publicClient": false
+      }' "https://localhost:9443/api/server/v1/applications/{APP_ID}/inbound-protocols/oidc"</code></pre>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 3</span>
+          <span class="step-title-text" style="margin-left: 12px;">Configure RP Environment Credentials (`.env`)</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-purple); font-weight: 800;">RP Configuration</span>
+      </div>
+      <p class="step-desc">
+        Add the WSO2 IS 7.0 endpoints and client credentials to your Relying Party application environment configuration file (`.env`).
+      </p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>env — RP Project `.env` Configuration</span>
+        </div>
+        <pre><code># WSO2 IS 7.0 Identity Broker Configuration
+WSO2_BASE_URL=https://localhost:9443
+WSO2_CLIENT_ID=eiMgOByxPuwybGw2CKYW9nJl8_oa
+WSO2_CLIENT_SECRET=2d0bcwOjhvF9OXEDzGlv1boUAiMa
+WSO2_REDIRECT_URI=http://127.0.0.1:8000/auth/wso2/callback
+
+# Sint Maarten eID Core API Configuration (For Public Profile Enrichment)
+EID_BASE_URL=http://localhost:5000</code></pre>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 4</span>
+          <span class="step-title-text" style="margin-left: 12px;">Implement OIDC Auth Controller Code</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-amber); font-weight: 800;">Code Implementation</span>
+      </div>
+      <p class="step-desc">
+        Implement authentication routes: <code>/auth/wso2/redirect</code> (redirects to WSO2 authorize URL), <code>/auth/wso2/callback</code> (exchanges authorization code via HTTP Basic Auth), and <code>/auth/wso2/logout</code>.
+      </p>
+
+      <!-- Code Tabs Generator -->
+      <div class="code-container">
+        <div class="code-header">
+          <div class="code-tabs">
+            <button class="tab-btn active" onclick="switchCode('laravel')">Laravel (PHP)</button>
+            <button class="tab-btn" onclick="switchCode('node')">Node.js (Express)</button>
+            <button class="tab-btn" onclick="switchCode('react')">React (SPA)</button>
+            <button class="tab-btn" onclick="switchCode('python')">Python (Flask)</button>
+          </div>
+          <span id="code-file-label">app/Http/Controllers/Auth/Wso2Controller.php</span>
+        </div>
+
+        <pre><code id="code-display">&lt;?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
+class Wso2Controller extends Controller
+{
+    public function redirect(): RedirectResponse
+    {
+        $state = Str::random(40);
+        session(['oauth_state' => $state]);
+
+        $query = http_build_query([
+            'client_id' => config('wso2.client_id'),
+            'redirect_uri' => config('wso2.redirect_uri'),
+            'response_type' => 'code',
+            'scope' => 'openid profile email',
+            'state' => $state,
+        ]);
+
+        return redirect(config('wso2.base_url') . '/oauth2/authorize?' . $query);
+    }
+
+    public function callback(Request $request): RedirectResponse
+    {
+        $state = session()->pull('oauth_state');
+        if (!$state || $state !== $request->state) {
+            return redirect('/')->withErrors(['oauth' => 'Invalid state.']);
+        }
+
+        // Exchange Authorization Code for Tokens
+        $response = Http::withBasicAuth(config('wso2.client_id'), config('wso2.client_secret'))
+            ->asForm()->withoutVerifying()
+            ->post(config('wso2.base_url') . '/oauth2/token', [
+                'grant_type' => 'authorization_code',
+                'redirect_uri' => config('wso2.redirect_uri'),
+                'code' => $request->code,
+            ]);
+
+        $tokenData = $response->json();
+        $accessToken = $tokenData['access_token'];
+
+        // Fetch UserInfo from WSO2
+        $userResponse = Http::withoutVerifying()->withToken($accessToken)
+            ->get(config('wso2.base_url') . '/oauth2/userinfo');
+        $wso2User = $userResponse->json() ?? [];
+
+        // Enrich Profile from eID Core API
+        $eidRes = Http::withoutVerifying()->get(config('eid.base_url') . '/api/v1/auth/userinfo-public?email=' . urlencode($wso2User['email'] ?? ''));
+        if ($eidRes->successful()) {
+            $wso2User = array_merge($wso2User, $eidRes->json());
+        }
+
+        session(['user_profile' => $wso2User]);
+
+        // Link User locally & Login
+        $user = User::firstOrCreate(
+            ['email' => $wso2User['email'] ?? $wso2User['sub']],
+            ['keycloak_id' => $wso2User['sub'], 'name' => $wso2User['name'] ?? 'eID Citizen']
+        );
+
+        Auth::login($user);
+        return redirect()->intended('dashboard');
+    }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 5</span>
+          <span class="step-title-text" style="margin-left: 12px;">Test Sandbox Identities Across 4 eID States</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-rose); font-weight: 800;">US-6.2 Conformance</span>
+      </div>
+      <p class="step-desc">
+        Test your RP application against all 4 eID lifecycle states to ensure graceful error handling and proper citizen experience.
+      </p>
+
+      <table class="error-table">
+        <thead>
+          <tr>
+            <th>Test Email</th>
+            <th>eID State</th>
+            <th>Expected Login Result</th>
+            <th>RP Application Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>sandbox.active@eid.sm</code></td>
+            <td><span style="color: var(--accent-emerald); font-weight: 800;">Active</span></td>
+            <td>✅ Success — Token &amp; UserInfo returned</td>
+            <td>Grant citizen access to dashboard</td>
+          </tr>
+          <tr>
+            <td><code>sandbox.pre@eid.sm</code></td>
+            <td><span style="color: var(--accent-amber); font-weight: 800;">Pre-provisioned</span></td>
+            <td>❌ Denied — Error: <code>eid_not_yet_active</code></td>
+            <td>Prompt citizen to complete eID enrolment</td>
+          </tr>
+          <tr>
+            <td><code>sandbox.revoked@eid.sm</code></td>
+            <td><span style="color: var(--accent-rose); font-weight: 800;">Revoked</span></td>
+            <td>❌ Denied — Error: <code>eid_revoked</code></td>
+            <td>Display revocation notice &amp; PSC support link</td>
+          </tr>
+          <tr>
+            <td><code>sandbox.suspended@eid.sm</code></td>
+            <td><span style="color: var(--accent-amber); font-weight: 800;">Suspended</span></td>
+            <td>❌ Denied — Error: <code>eid_suspended</code></td>
+            <td>Display temporary suspension warning</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Step 6: Troubleshooting -->
+    <div class="step-box">
+      <div class="step-header">
+        <div>
+          <span class="step-num">Step 6</span>
+          <span class="step-title-text" style="margin-left: 12px;">Common Troubleshooting &amp; Fixes</span>
+        </div>
+        <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 800;">Troubleshooting Matrix</span>
+      </div>
+      <p class="step-desc">
+        Quick reference matrix for resolving common integration errors during WSO2 IS 7.0 onboarding.
+      </p>
+
+      <table class="error-table">
+        <thead>
+          <tr>
+            <th>WSO2 Error Message</th>
+            <th>Root Cause</th>
+            <th>Immediate Resolution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: var(--accent-rose); font-weight: 800;">Cannot find an application associated with consumer key</td>
+            <td>The <code>WSO2_CLIENT_ID</code> sent in the request does not exist in WSO2's Service Provider store.</td>
+            <td>Use registered key <code>eiMgOByxPuwybGw2CKYW9nJl8_oa</code> or register the app via WSO2 REST API.</td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-rose); font-weight: 800;">Registered callback does not match with the provided url</td>
+            <td>The <code>redirect_uri</code> parameter sent by the RP does not match the registered callback pattern.</td>
+            <td>Update WSO2 callback URL regex to include your RP port: <code>regexp=http://(coci\.test|127\.0\.0\.1:8000|localhost:8000)/auth/wso2/callback</code></td>
+          </tr>
+          <tr>
+            <td style="color: var(--accent-rose); font-weight: 800;">Invalid PKCE Code Verifier</td>
+            <td>PKCE transformation method mismatch or incorrect SHA-256 base64url encoding.</td>
+            <td>Use <code>code_challenge_method=S256</code> and base64url encode <code>hash('sha256', $verifier, true)</code> without padding.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const codeSnippets = {
+      laravel: {
+        file: 'app/Http/Controllers/Auth/Wso2Controller.php',
+        code: `<?php
+
+namespace App\\Http\\Controllers\\Auth;
+
+use App\\Http\\Controllers\\Controller;
+use App\\Models\\User;
+use Illuminate\\Http\\RedirectResponse;
+use Illuminate\\Http\\Request;
+use Illuminate\\Support\\Facades\\Auth;
+use Illuminate\\Support\Facades\\Http;
+use Illuminate\\Support\\Str;
+
+class Wso2Controller extends Controller
+{
+    public function redirect(): RedirectResponse
+    {
+        $state = Str::random(40);
+        session(['oauth_state' => $state]);
+
+        $query = http_build_query([
+            'client_id' => config('wso2.client_id'),
+            'redirect_uri' => config('wso2.redirect_uri'),
+            'response_type' => 'code',
+            'scope' => 'openid profile email',
+            'state' => $state,
+        ]);
+
+        return redirect(config('wso2.base_url') . '/oauth2/authorize?' . $query);
+    }
+
+    public function callback(Request $request): RedirectResponse
+    {
+        $state = session()->pull('oauth_state');
+        if (!$state || $state !== $request->state) {
+            return redirect('/')->withErrors(['oauth' => 'Invalid state.']);
+        }
+
+        // Exchange Code via Basic Auth Token Endpoint
+        $response = Http::withBasicAuth(config('wso2.client_id'), config('wso2.client_secret'))
+            ->asForm()->withoutVerifying()
+            ->post(config('wso2.base_url') . '/oauth2/token', [
+                'grant_type' => 'authorization_code',
+                'redirect_uri' => config('wso2.redirect_uri'),
+                'code' => $request->code,
+            ]);
+
+        $tokenData = $response->json();
+        $accessToken = $tokenData['access_token'];
+
+        // Fetch UserInfo from WSO2
+        $userResponse = Http::withoutVerifying()->withToken($accessToken)
+            ->get(config('wso2.base_url') . '/oauth2/userinfo');
+        $wso2User = $userResponse->json() ?? [];
+
+        session(['user_profile' => $wso2User]);
+
+        $user = User::firstOrCreate(
+            ['email' => $wso2User['email'] ?? $wso2User['sub']],
+            ['keycloak_id' => $wso2User['sub'], 'name' => $wso2User['name'] ?? 'eID Citizen']
+        );
+
+        Auth::login($user);
+        return redirect()->intended('dashboard');
+    }
+}`
+      },
+      node: {
+        file: 'src/routes/auth.js',
+        code: `const express = require('express');
+const axios = require('axios');
+const router = express.Router();
+
+// Redirect to WSO2 Authorize URL
+router.get('/auth/wso2/redirect', (req, res) => {
+  const state = Math.random().toString(36).substring(2);
+  req.session.oauth_state = state;
+
+  const authUrl = \`\${process.env.WSO2_BASE_URL}/oauth2/authorize?\` +
+    \`client_id=\${process.env.WSO2_CLIENT_ID}&\` +
+    \`redirect_uri=\${encodeURIComponent(process.env.WSO2_REDIRECT_URI)}&\` +
+    \`response_type=code&scope=openid profile email&state=\${state}\`;
+
+  res.redirect(authUrl);
+});
+
+// Handle WSO2 Callback
+router.get('/auth/wso2/callback', async (req, res) => {
+  const { code, state } = req.query;
+  if (state !== req.session.oauth_state) return res.status(400).send('Invalid state');
+
+  const authHeader = Buffer.from(\`\${process.env.WSO2_CLIENT_ID}:\${process.env.WSO2_CLIENT_SECRET}\`).toString('base64');
+  
+  const tokenRes = await axios.post(\`\${process.env.WSO2_BASE_URL}/oauth2/token\`, 
+    new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: process.env.WSO2_REDIRECT_URI
+    }), {
+      headers: { 'Authorization': \`Basic \${authHeader}\`, 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+  const userInfo = await axios.get(\`\${process.env.WSO2_BASE_URL}/oauth2/userinfo\`, {
+    headers: { 'Authorization': \`Bearer \${tokenRes.data.access_token}\` }
+  });
+
+  req.session.user = userInfo.data;
+  res.redirect('/dashboard');
+});`
+      },
+      react: {
+        file: 'src/components/LoginButton.jsx',
+        code: `import React from 'react';
+
+export function LoginWithEidButton() {
+  const handleLogin = () => {
+    const clientId = process.env.REACT_APP_WSO2_CLIENT_ID || 'eiMgOByxPuwybGw2CKYW9nJl8_oa';
+    const redirectUri = encodeURIComponent(process.env.REACT_APP_WSO2_REDIRECT_URI || 'http://localhost:3000/auth/callback');
+    const wso2Url = \`https://localhost:9443/oauth2/authorize?client_id=\${clientId}&redirect_uri=\${redirectUri}&response_type=code&scope=openid profile email\`;
+    
+    window.location.href = wso2Url;
+  };
+
+  return (
+    <button onClick={handleLogin} className="btn-eid">
+      🪪 Sign In with Sint Maarten eID
+    </button>
+  );
+}`
+      },
+      python: {
+        file: 'app/auth.py',
+        code: `from flask import Flask, redirect, request, session, url_for
+import requests, os
+
+app = Flask(__name__)
+
+@app.route('/auth/wso2/redirect')
+def redirect_to_wso2():
+    state = os.urandom(16).hex()
+    session['oauth_state'] = state
+    params = {
+        'client_id': os.getenv('WSO2_CLIENT_ID'),
+        'redirect_uri': os.getenv('WSO2_REDIRECT_URI'),
+        'response_type': 'code',
+        'scope': 'openid profile email',
+        'state': state
+    }
+    auth_url = f"{os.getenv('WSO2_BASE_URL')}/oauth2/authorize?" + "&".join([f"{k}={v}" for k, v in params.items()])
+    return redirect(auth_url)
+
+@app.route('/auth/wso2/callback')
+def wso2_callback():
+    code = request.args.get('code')
+    token_url = f"{os.getenv('WSO2_BASE_URL')}/oauth2/token"
+    res = requests.post(token_url, auth=(os.getenv('WSO2_CLIENT_ID'), os.getenv('WSO2_CLIENT_SECRET')), data={
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': os.getenv('WSO2_REDIRECT_URI')
+    }, verify=False)
+    
+    access_token = res.json().get('access_token')
+    userinfo = requests.get(f"{os.getenv('WSO2_BASE_URL')}/oauth2/userinfo", headers={'Authorization': f'Bearer {access_token}'}, verify=False).json()
+    session['user'] = userinfo
+    return redirect('/dashboard')`
+      }
+    };
+
+    function switchCode(lang) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('code-file-label').innerText = codeSnippets[lang].file;
+      document.getElementById('code-display').innerText = codeSnippets[lang].code;
+    }
+  </script>
+</body>
+</html>

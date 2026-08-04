@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sint Maarten eID — WSO2 Internal Database Sync Flow (Pattern 2B)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #070b1d;
+      --bg-card: #0e1635;
+      --bg-card-alt: #131c42;
+      --border-color: #1e2952;
+      --border-highlight: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .header {
+      padding: 24px 40px;
+      background: rgba(14, 22, 53, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .deck-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff;
+      border: none;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 0 24px;
+    }
+
+    /* Comparison Banner: Good vs Bad Analysis */
+    .evaluation-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .eval-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .eval-box {
+      background: #090e24;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--border-color);
+    }
+    .eval-box.pro { border-color: rgba(16, 185, 129, 0.4); }
+    .eval-box.con { border-color: rgba(239, 68, 68, 0.4); }
+
+    .eval-title {
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .eval-box.pro .eval-title { color: var(--accent-emerald); }
+    .eval-box.con .eval-title { color: var(--accent-red); }
+
+    .eval-list {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      list-style: none;
+    }
+    .eval-list li { margin-bottom: 6px; position: relative; padding-left: 16px; }
+    .eval-box.pro .eval-list li::before { content: '✓'; position: absolute; left: 0; color: var(--accent-emerald); font-weight: 900; }
+    .eval-box.con .eval-list li::before { content: '⚠️'; position: absolute; left: 0; font-size: 10px; }
+
+    /* Workflow Cards Grid */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .flow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+    }
+    .step-badge {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.15);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .flow-card-title { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+    .flow-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    /* Sequence Steps */
+    .panel-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 30px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .panel-title { font-size: 18px; font-weight: 900; }
+
+    .seq-step {
+      background: #090e24;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .seq-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff; font-weight: 900; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .seq-content h4 { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+    .seq-content p { font-size: 12px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <div class="brand-title">Sint Maarten eID Architecture</div>
+      <div class="brand-subtitle">Pattern 2B: WSO2 Internal Database Sync Flow</div>
+    </div>
+
+    <div class="deck-controls">
+      <span class="btn" style="background: rgba(6, 182, 212, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan);">
+        📌 Part 1: WSO2 DB Sync Flow (Pattern 2B)
+      </span>
+      <a href="/architecture-diagram-wso2-hosted.html" class="btn btn-cyan">
+        Next: Part 2 (WSO2 Hosted Flow) →
+      </a>
+      <a href="/rp-widget-management.html" class="btn" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo)); color: #fff; border: none;">
+        🔀 Multi-RP Widget Deck ↗
+      </a>
+    </div>
+  </header>
+
+  <div class="main-container">
+
+    <!-- ARCHITECTURAL EVALUATION BANNER: GOOD VS BAD ANALYSIS -->
+    <div class="evaluation-banner">
+      <h3 style="font-size: 16px; font-weight: 900; color: var(--accent-cyan);">
+        ⚖️ Architectural Analysis: WSO2 Internal Database Sync vs. eID REST API Verification
+      </h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+        In Pattern 2B, when a citizen eID application is approved at PSC, their credential record is pushed via API into WSO2's internal userstore DB. During login, WSO2 verifies credentials directly against its local database rather than calling the eID API.
+      </p>
+
+      <div class="eval-grid">
+        <div class="eval-box pro">
+          <div class="eval-title">
+            <span>👍</span> Advantages of WSO2 Database Sync
+          </div>
+          <ul class="eval-list">
+            <li><strong>Zero External REST Latency at Auth Time:</strong> WSO2 checks credentials locally in its own database without an outbound HTTP REST call to eID Core.</li>
+            <li><strong>Network Isolation Resilience:</strong> If network connectivity between WSO2 and eID Core drops temporarily, existing provisioned citizens can still log in.</li>
+            <li><strong>Standard WSO2 Native Pattern:</strong> Operates natively using WSO2's out-of-the-box LDAP / Userstore manager.</li>
+          </ul>
+        </div>
+
+        <div class="eval-box con">
+          <div class="eval-title">
+            <span>👎</span> Disadvantages &amp; Risks (Why Pattern 2A REST API is Preferred)
+          </div>
+          <ul class="eval-list">
+            <li>⚠️ <strong>Data Stale &amp; Revocation Lag:</strong> If an eID is revoked or suspended in eID Core, there is a sync lag before WSO2 DB updates, allowing revoked users to log in!</li>
+            <li>⚠️ <strong>Duplicate Credential Vault &amp; Security Risk:</strong> Password hashes and user attributes are duplicated across two databases (eID Vault + WSO2 DB), doubling attack surface area.</li>
+            <li>⚠️ <strong>FIDO2 WebAuthn Passkey Limitation:</strong> WSO2's standard database userstore cannot natively validate hardware WebAuthn FIDO2 passkeys (Apple TouchID, YubiKey) without calling eID WebAuthn vault.</li>
+            <li>⚠️ <strong>Annex E Audit Compliance Complexity:</strong> Splitting identity state between WSO2 DB and eID DB violates the single-source-of-truth compliance standard.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-STEP WORKFLOW CARDS -->
+    <div class="flow-grid">
+
+      <!-- Step 1 -->
+      <div class="flow-card">
+        <span class="step-badge">Phase 1: Provisioning</span>
+        <div class="flow-card-title">1. Citizen Enrolment &amp; WSO2 DB Sync</div>
+        <div class="flow-card-desc">
+          Citizen completes PSC / Online Enrolment. Upon approval, eID Platform generates eID Credential and immediately calls WSO2 API (<code>POST /api/server/v1/users</code>) to push user record into WSO2 DB.
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flow-card">
+        <span class="step-badge">Phase 2: Auth Request</span>
+        <div class="flow-card-title">2. RP Redirects to WSO2 Hosted Form</div>
+        <div class="flow-card-desc">
+          Citizen clicks "Login" on Relying Party (COCI). RP redirects citizen to WSO2 IS 7.0 Hosted Login Page (<code>https://localhost:9443/oauth2/authorize</code>).
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flow-card">
+        <span class="step-badge">Phase 3: Verification</span>
+        <div class="flow-card-title">3. WSO2 Local DB Credential Check</div>
+        <div class="flow-card-desc">
+          Citizen inputs eID Serial / Email &amp; Password into WSO2 Hosted Form. WSO2 queries its <strong>internal database userstore</strong> locally to verify credentials.
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flow-card">
+        <span class="step-badge">Phase 4: Token Return</span>
+        <div class="flow-card-title">4. WSO2 MFA &amp; Token Return</div>
+        <div class="flow-card-desc">
+          WSO2 executes 2FA OTP, issues OIDC ID Token &amp; Access Token containing Pairwise Pseudonym (PPID), and redirects back to Relying Party (COCI).
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DETAILED SEQUENCE BREAKDOWN -->
+    <div class="panel-section">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🔄</span> End-to-End Sequence &amp; Data Flow (Pattern 2B)
+        </div>
+        <span style="font-size: 11px; font-weight: 800; color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 4px 12px; border-radius: 6px;">
+          WSO2 DB Sync Verification Architecture
+        </span>
+      </div>
+
+      <div class="seq-step">
+        <div class="seq-num">1</div>
+        <div class="seq-content">
+          <h4>eID Provisioning Sync Call (`eID Core` &rarr; `WSO2 DB`)</h4>
+          <p>When PSC agent approves citizen enrolment, eID Platform issues `eID` and triggers background webhook `POST https://localhost:9443/api/server/v1/users` to create citizen user in WSO2 Userstore DB.</p>
+        </div>
+      </div>
+
+      <div class="seq-step">
+        <div class="seq-num">2</div>
+        <div class="seq-content">
+          <h4>RP Login Initiation (`COCI App` &rarr; `WSO2 Form`)</h4>
+          <p>Citizen initiates login on RP1 (COCI). COCI redirects browser to WSO2 IS 7.0 Hosted Login UI with OIDC `client_id=client_coci_sm_prod` &amp; PKCE `S256` parameters.</p>
+        </div>
+      </div>
+
+      <div class="seq-step">
+        <div class="seq-num">3</div>
+        <div class="seq-content">
+          <h4>WSO2 Local Database Credential Verification (`WSO2 UI` &rarr; `WSO2 Internal DB`)</h4>
+          <p>Citizen enters eID Serial / Email and Password on WSO2 Hosted Form. WSO2 verifies password hash directly against `wso2_db.UM_USER` table without calling eID API.</p>
+        </div>
+      </div>
+
+      <div class="seq-step">
+        <div class="seq-num">4</div>
+        <div class="seq-content">
+          <h4>WSO2 MFA &amp; OIDC Token Return (`WSO2` &rarr; `COCI App`)</h4>
+          <p>WSO2 prompts for 2FA OTP code. Upon success, WSO2 generates OIDC authorization `code`, exchanges for ID Token &amp; Access Token with Pairwise Pseudonym (`ppid_coci_...`), and returns user to COCI.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

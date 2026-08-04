@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>National eID Enrolment — Live App Journey &amp; Presentation Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #070b1d;
+      --bg-card: #0e1635;
+      --bg-card-alt: #131c42;
+      --border-color: #1e2952;
+      --border-highlight: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      selection-background-color: var(--accent-blue);
+      selection-color: #fff;
+    }
+
+    /* Ambient Background Glows */
+    .glow-1 {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Official Banner */
+    .top-banner {
+      background: #090d24;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 24px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .compliance-pill {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Main Deck Navigation Header */
+    header.main-header {
+      background: rgba(11, 16, 43, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Deck Controls */
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #18234d;
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--accent-emerald), #059669);
+      border: none;
+      color: #fff;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Step Timeline Bar */
+    .timeline-wrapper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .timeline-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 26px;
+      left: 50px;
+      right: 50px;
+      height: 3px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+
+    .timeline-line-fill {
+      position: absolute;
+      top: 26px;
+      left: 50px;
+      height: 3px;
+      background: linear-gradient(to right, var(--accent-blue), var(--accent-indigo), var(--accent-emerald));
+      z-index: 1;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .step-item {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      width: 160px;
+    }
+
+    .step-bubble {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .step-item:hover .step-bubble {
+      border-color: var(--border-highlight);
+      color: var(--text-main);
+      transform: scale(1.08);
+    }
+
+    .step-item.active .step-bubble {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      border-color: #60a5fa;
+      color: #fff;
+      box-shadow: 0 0 24px rgba(59, 130, 246, 0.6);
+      transform: scale(1.15);
+    }
+
+    .step-item.completed .step-bubble {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .step-text {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+      text-align: center;
+      color: var(--text-muted);
+      transition: color 0.3s ease;
+    }
+
+    .step-item.active .step-text {
+      color: var(--text-main);
+    }
+
+    /* Live App Grid Layout */
+    .live-app-grid {
+      display: grid;
+      grid-template-cols: 1.1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .live-app-grid {
+        grid-template-cols: 1fr;
+      }
+    }
+
+    .app-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Live Form Controls */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #060919;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    /* Camera Frame */
+    .camera-frame {
+      position: relative;
+      width: 100%;
+      height: 270px;
+      background: #030612;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .target-ring {
+      width: 140px;
+      height: 180px;
+      border: 2px stroke var(--accent-emerald);
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      animation: scan-pulse 2s infinite ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes scan-pulse {
+      0%, 100% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+      50% { border-color: rgba(16, 185, 129, 1); box-shadow: 0 0 28px rgba(16, 185, 129, 0.7); }
+    }
+
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(16, 185, 129, 0.15) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(16, 185, 129, 0.15) 1px, transparent 1px);
+      background-size: 16px 16px;
+      border-radius: 50%;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(11, 16, 43, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Holographic Smart Card */
+    .smart-card-view {
+      background: linear-gradient(135deg, #070b1d 0%, #172354 50%, #0d1536 100%);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease;
+    }
+
+    .smart-card-view:hover {
+      transform: translateY(-4px) rotateX(2deg) rotateY(-2deg);
+    }
+
+    .card-flag-stripe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, #ef4444, #ffffff, #3b82f6);
+    }
+
+    /* Toast Notification */
+    .toast-box {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--accent-emerald);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-terminal {
+      background: #030612;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      height: 180px;
+      overflow-y: auto;
+      space-y: 6px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Top Official Header -->
+  <div class="top-banner">
+    <div class="flag-badge">
+      <span>🇸🇽</span>
+      <span>Government of Sint Maarten • Ministry of General Affairs</span>
+    </div>
+    <div>
+      <span class="compliance-pill">✓ eIDAS Level High • ICAO Doc 9303 • ISO/IEC 7501-1</span>
+    </div>
+  </div>
+
+  <!-- Main Presentation Header -->
+  <header class="main-header">
+    <div class="brand-section">
+      <div class="logo-icon">🪪</div>
+      <div>
+        <h1 class="brand-title">National eID Enrolment Live App</h1>
+        <p class="brand-subtitle">Interactive Real-Time Enrolment Simulation</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="deck-controls">
+      <button class="btn" id="btn-prev" onclick="navigateStep(-1)">
+        <span>←</span> Prev Step
+      </button>
+      <button class="btn btn-primary" id="btn-next" onclick="navigateStep(1)">
+        Next Step <span>→</span>
+      </button>
+      <button class="btn btn-emerald" onclick="resetLiveApp()">
+        🔄 Reset Simulation
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- Timeline Stepper Bar -->
+    <div class="timeline-wrapper">
+      <div class="timeline-line-fill" id="progress-line"></div>
+
+      <div class="step-item active" onclick="jumpToStep(1)">
+        <div class="step-bubble">📝</div>
+        <div class="step-text">1. Form &amp; OTP</div>
+      </div>
+
+      <div class="step-item" onclick="jumpToStep(2)">
+        <div class="step-bubble">💾</div>
+        <div class="step-text">2. Save &amp; Resume</div>
+      </div>
+
+      <div class="step-item" onclick="jumpToStep(3)">
+        <div class="step-item">
+          <div class="step-bubble">🛂</div>
+          <div class="step-text">3. Passport OCR</div>
+        </div>
+      </div>
+
+      <div class="step-item" onclick="jumpToStep(4)">
+        <div class="step-bubble">📷</div>
+        <div class="step-text">4. 3D Liveness</div>
+      </div>
+
+      <div class="step-item" onclick="jumpToStep(5)">
+        <div class="step-bubble">🏛️</div>
+        <div class="step-text">5. PSC Review</div>
+      </div>
+
+      <div class="step-item" onclick="jumpToStep(6)">
+        <div class="step-bubble">🪪</div>
+        <div class="step-text">6. eID Issued</div>
+      </div>
+    </div>
+
+    <!-- Live App Viewport -->
+    <div class="live-app-grid">
+      
+      <!-- Left Panel: Interactive Application Interface -->
+      <div class="app-panel">
+        <div class="panel-header">
+          <div class="panel-title" id="step-title-display">
+            <span>📝</span> Step 1: Citizen Enrolment Form
+          </div>
+          <span class="compliance-pill" id="step-badge-pill">Step 1 of 6</span>
+        </div>
+
+        <div id="live-interface-container">
+          <!-- Dynamically Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Right Panel: Live System Audit Terminal & Logs -->
+      <div class="app-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡</span> Backend Audit &amp; State Terminal
+          </div>
+          <span class="compliance-pill">PostgreSQL / Redis Sync</span>
+        </div>
+
+        <div class="log-terminal" id="terminal-logs">
+          <div>[2026-08-03 12:35:01 UTC] <span style="color: var(--accent-blue);">SYSTEM_INIT</span> Engine ready.</div>
+          <div>[2026-08-03 12:35:02 UTC] <span style="color: var(--accent-emerald);">SESSION_ACTIVE</span> Session ID: ses-98a7f6</div>
+        </div>
+
+        <!-- Saved Reference Box (If Any) -->
+        <div id="saved-ref-box" style="margin-top: 20px; display: none;">
+          <div style="background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--accent-amber); padding: 14px; border-radius: 12px; text-align: center;">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--accent-amber);">Enrolment Reference Code Saved:</span>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 900; color: var(--accent-amber); letter-spacing: 2px; margin: 4px 0;" id="saved-ref-code">
+              SXM-REG-849201
+            </div>
+            <p style="font-size: 10px; color: var(--text-muted);">Valid for 48 Hours • State Encrypted</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JavaScript Live App Engine -->
+  <script>
+    let currentStep = 1;
+    let appState = {
+      firstName: 'Max',
+      lastName: 'Mustermann',
+      bsnNumber: '849201938',
+      email: 'max.mustermann@example.com',
+      phone: '+1 721 555-0199',
+      otpVerified: false,
+      refCode: 'SXM-REG-849201',
+      ocrPassportNo: 'N8492019',
+      livenessScore: 98.4,
+      isPscReviewRequired: false,
+      operatorDecision: 'PENDING',
+      uin: 'UN-SXM-26-849201-3',
+      eidSerial: 'EID-SXM-26-849201-3'
+    };
+
+    function addLog(msg, type = 'info') {
+      const term = document.getElementById('terminal-logs');
+      const time = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const color = type === 'success' ? 'var(--accent-emerald)' : type === 'warn' ? 'var(--accent-amber)' : type === 'error' ? 'var(--accent-red)' : 'var(--accent-blue)';
+      const div = document.createElement('div');
+      div.innerHTML = `[${time} UTC] <span style="color: ${color}; font-weight: 700;">[${type.toUpperCase()}]</span> ${msg}`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function renderStep() {
+      const container = document.getElementById('live-interface-container');
+      document.getElementById('step-badge-pill').innerText = `Step ${currentStep} of 6`;
+
+      // Update Stepper UI
+      document.querySelectorAll('.step-item').forEach((item, idx) => {
+        item.classList.remove('active', 'completed');
+        if (idx + 1 === currentStep) item.classList.add('active');
+        else if (idx + 1 < currentStep) item.classList.add('completed');
+      });
+      document.getElementById('progress-line').style.width = `${((currentStep - 1) / 5) * 100}%`;
+
+      if (currentStep === 1) {
+        document.getElementById('step-title-display').innerHTML = `<span>📝</span> Step 1: Citizen Registration &amp; 2FA OTP`;
+        container.innerHTML = `
+          <div class="form-group">
+            <label class="form-label">Given Names</label>
+            <input type="text" class="form-input" id="inp-first" value="${appState.firstName}" onchange="appState.firstName=this.value" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Surname (Family Name)</label>
+            <input type="text" class="form-input" id="inp-last" value="${appState.lastName}" onchange="appState.lastName=this.value" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CRIB / BSN Identifier</label>
+            <input type="text" class="form-input" id="inp-bsn" value="${appState.bsnNumber}" onchange="appState.bsnNumber=this.value" />
+          </div>
+
+          <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Primary Email</label>
+              <input type="text" class="form-input" value="${appState.email}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile Phone</label>
+              <input type="text" class="form-input" value="${appState.phone}" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="handleVerifyOtp()">
+              📱 Send &amp; Verify 2FA OTP Code
+            </button>
+            <button class="btn" onclick="handleSaveDraft()">
+              💾 Save Draft
+            </button>
+          </div>
+
+          ${appState.otpVerified ? `
+            <div class="toast-box">
+              <span>✓</span> 2FA Mobile &amp; Email OTP Verified Successfully! Ready to proceed.
+            </div>
+          ` : ''}
+        `;
+      } else if (currentStep === 2) {
+        document.getElementById('step-title-display').innerHTML = `<span>💾</span> Step 2: Save &amp; Resume Registration (US-3.1)`;
+        container.innerHTML = `
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Max can interrupt registration at any time and resume using reference format <code style="color: var(--accent-amber);">SXM-REG-XXXXXX</code> valid for 48 hours.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label">Enrolment Reference Code</label>
+            <input type="text" class="form-input" id="inp-ref" value="${appState.refCode}" style="color: var(--accent-amber); font-weight: 700; text-align: center; letter-spacing: 2px;" />
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="handleRestoreRef()">
+              🔍 Restore Application Draft
+            </button>
+          </div>
+
+          <div id="restore-toast" class="toast-box" style="display: none; background: rgba(245, 158, 11, 0.15); border-color: var(--accent-amber); color: var(--accent-amber);">
+            <span>✓</span> Draft Restored for ${appState.firstName} ${appState.lastName} (BSN: ${appState.bsnNumber})!
+          </div>
+        `;
+      } else if (currentStep === 3) {
+        document.getElementById('step-title-display').innerHTML = `<span>🛂</span> Step 3: ePassport OCR &amp; MRZ Laser Scan`;
+        container.innerHTML = `
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Upload Sint Maarten passport scan to parse ICAO Doc 9303 checksums.
+          </p>
+
+          <div style="background: #030612; border: 1px border-slate-800; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px;">
+            <span style="font-size: 32px; display: block; margin-bottom: 6px;">📄</span>
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Sint Maarten Passport Scan Loaded</span>
+            <p style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">File: <code>passport_max_mustermann.png</code></p>
+          </div>
+
+          <button class="btn btn-primary" style="w-full; width: 100%;" onclick="handleScanOcr()">
+            ⚡ Execute ICAO MRZ Laser Scanner
+          </button>
+
+          <div id="ocr-results-box" style="margin-top: 16px; display: none;" class="toast-box">
+            <span>✓</span> MRZ Parsed: MUSTERMANN, MAX • Passport No: N8492019 • Modulus-7 Checksum: PASS
+          </div>
+        `;
+      } else if (currentStep === 4) {
+        document.getElementById('step-title-display').innerHTML = `<span>📷</span> Step 4: 3D Facial Liveness Detection Check`;
+        container.innerHTML = `
+          <div class="camera-frame">
+            <div class="target-ring">
+              <div class="grid-lines"></div>
+              <span style="font-size: 64px;">👨‍💼</span>
+            </div>
+            <div class="camera-overlay">
+              <span style="color: var(--accent-emerald);">● Live Camera Feed</span>
+              <span id="score-label" style="color: #fff;">Liveness: ${appState.livenessScore}%</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="handleSimulateLiveness(98.4)">
+              🟢 Simulate Good Lighting (98.4% Pass)
+            </button>
+            <button class="btn" style="color: var(--accent-amber);" onclick="handleSimulateLiveness(78.2)">
+              🟡 Simulate Shadow Glare (78.2% Flag)
+            </button>
+          </div>
+        `;
+      } else if (currentStep === 5) {
+        document.getElementById('step-title-display').innerHTML = `<span>🏛️</span> Step 5: PSC Counter Operator Review (US-3.2 / P1-D2)`;
+        container.innerHTML = `
+          <div style="background: #0d1433; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <span style="font-size: 9px; font-weight: 800; color: var(--accent-amber); text-transform: uppercase;">PSC Counter Operator Desk — Sarah</span>
+                <h3 style="font-size: 15px; font-weight: 900; text-transform: uppercase;">Applicant: ${appState.firstName} ${appState.lastName}</h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">BSN: ${appState.bsnNumber} • Passport: N8492019</p>
+              </div>
+              <span class="compliance-pill" style="background: rgba(245,158,11,0.1); color: var(--accent-amber); border-color: rgba(245,158,11,0.3);">
+                ${appState.isPscReviewRequired ? 'FLAGGED_FOR_PSC_REVIEW' : 'AUTO_ELIGIBLE'}
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" style="flex: 1; background: var(--accent-emerald);" onclick="handleOperatorApprove()">
+              ✓ Approve Enrolment
+            </button>
+            <button class="btn" style="color: var(--accent-red);" onclick="handleOperatorReject()">
+              Reject Application
+            </button>
+          </div>
+
+          ${appState.operatorDecision === 'APPROVED' ? `
+            <div class="toast-box">
+              <span>✓</span> Operator Sarah Approved Enrolment! Audit Log Signed with SHA-256 Hash.
+            </div>
+          ` : ''}
+        `;
+      } else if (currentStep === 6) {
+        document.getElementById('step-title-display').innerHTML = `<span>🪪</span> Step 6: eID Issued &amp; Relying Party Portals`;
+        container.innerHTML = `
+          <div class="smart-card-view">
+            <div class="card-flag-stripe"></div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div>
+                <span style="font-size: 9px; font-weight: 900; color: var(--accent-amber); text-transform: uppercase;">Sint Maarten National eID</span>
+                <h3 style="font-size: 16px; font-weight: 900; text-transform: uppercase; margin-top: 2px;">${appState.firstName} ${appState.lastName}</h3>
+              </div>
+              <span style="font-size: 20px;">🇸🇽</span>
+            </div>
+            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+              <div>
+                <span style="color: var(--text-muted); font-size: 9px; display: block;">UIN NUMBER</span>
+                <strong style="color: var(--accent-emerald);">${appState.uin}</strong>
+              </div>
+              <div>
+                <span style="color: var(--text-muted); font-size: 9px; display: block;">EID SERIAL</span>
+                <strong style="color: var(--accent-blue);">${appState.eidSerial}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="window.open('/dashboard', '_blank')">
+              👤 Open Citizen Dashboard
+            </button>
+            <button class="btn" style="color: var(--accent-amber);" onclick="window.open('/admin/dashboard', '_blank')">
+              🏛️ Open Admin Desk
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function handleVerifyOtp() {
+      appState.otpVerified = true;
+      addLog(`Mobile & Email 2FA OTP Verified for ${appState.email}`, 'success');
+      renderStep();
+    }
+
+    function handleSaveDraft() {
+      document.getElementById('saved-ref-box').style.display = 'block';
+      addLog(`Application draft saved. Reference: ${appState.refCode}`, 'warn');
+    }
+
+    function handleRestoreRef() {
+      document.getElementById('restore-toast').style.display = 'flex';
+      addLog(`Restored application payload for reference ${appState.refCode}`, 'success');
+    }
+
+    function handleScanOcr() {
+      document.getElementById('ocr-results-box').style.display = 'flex';
+      addLog(`ICAO Doc 9303 OCR Laser Scan complete. Passport ${appState.ocrPassportNo} VALIDATED.`, 'success');
+    }
+
+    function handleSimulateLiveness(score) {
+      appState.livenessScore = score;
+      if (score < 85) {
+        appState.isPscReviewRequired = true;
+        addLog(`Liveness Score ${score}% < 85%. Transitioned state to FLAGGED_FOR_PSC_REVIEW.`, 'warn');
+      } else {
+        appState.isPscReviewRequired = false;
+        addLog(`Liveness Score ${score}% >= 85%. Automated liveness check PASSED.`, 'success');
+      }
+      renderStep();
+    }
+
+    function handleOperatorApprove() {
+      appState.operatorDecision = 'APPROVED';
+      addLog(`PSC Operator Sarah APPROVED enrolment for ${appState.firstName} ${appState.lastName}. Audit signature logged.`, 'success');
+      renderStep();
+    }
+
+    function handleOperatorReject() {
+      appState.operatorDecision = 'REJECTED';
+      addLog(`PSC Operator Sarah REJECTED enrolment. Violation logged to Annex E refusal ledger.`, 'error');
+      renderStep();
+    }
+
+    function navigateStep(delta) {
+      const next = currentStep + delta;
+      if (next >= 1 && next <= 6) {
+        currentStep = next;
+        renderStep();
+      }
+    }
+
+    function jumpToStep(st) {
+      currentStep = st;
+      renderStep();
+    }
+
+    function resetLiveApp() {
+      currentStep = 1;
+      appState.otpVerified = false;
+      appState.operatorDecision = 'PENDING';
+      document.getElementById('saved-ref-box').style.display = 'none';
+      addLog('Simulation state reset to default.', 'info');
+      renderStep();
+    }
+
+    // Initialize on Load
+    renderStep();
+  </script>
+
+</body>
+</html>
