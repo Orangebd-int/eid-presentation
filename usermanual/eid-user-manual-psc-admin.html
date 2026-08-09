@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PSC Operator User Manual — Sint Maarten eID Platform</title>
+  <style>
+    :root {
+      --navy: #0b2e4e;
+      --navy-light: #134a75;
+      --green: #1a7f4c;
+      --green-bg: #eef8f1;
+      --red: #b42318;
+      --red-bg: #fef3f2;
+      --amber: #b54708;
+      --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb;
+      --bg: #f4f6f8;
+      --card: #fff;
+      --muted: #5c6773;
+      --border: #dde2ea;
+      --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6;
+    }
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { left: 1rem; top: 1rem; z-index: 999; background: #fff; padding: .5rem 1rem; }
+
+    /* Header */
+    .doc-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: #fff; padding: 2.5rem 2rem 2rem;
+    }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge {
+      display: inline-block; background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25); border-radius: 999px;
+      padding: .25rem .75rem; font-size: .75rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem;
+    }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.2; }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 720px; font-size: 1.05rem; }
+    .doc-meta {
+      display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem;
+      font-size: .875rem; opacity: .85;
+    }
+
+    /* Layout */
+    .doc-layout {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: var(--sidebar-w) 1fr; gap: 0;
+      min-height: calc(100vh - 200px);
+    }
+    @media (max-width: 900px) {
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+
+    /* Sidebar TOC */
+    .doc-sidebar {
+      position: sticky; top: 0; align-self: start;
+      height: 100vh; overflow-y: auto;
+      background: #fff; border-right: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+    .toc-title {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem;
+    }
+    .toc-nav a {
+      display: block; padding: .4rem 1.25rem .4rem 1.5rem;
+      color: var(--navy); text-decoration: none; font-size: .875rem;
+      border-left: 3px solid transparent;
+    }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .toc-nav a.active { border-left-color: var(--navy); background: var(--blue-bg); font-weight: 600; }
+    .toc-nav .toc-part {
+      padding: .75rem 1.25rem .25rem; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    }
+
+    /* Main content */
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 {
+      color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem;
+      padding-bottom: .5rem; border-bottom: 2px solid var(--border);
+    }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    h4 { font-size: .95rem; margin: 1rem 0 .5rem; color: #333; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    a:hover { text-decoration: underline; }
+
+    /* Cards & callouts */
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      border: 1px solid var(--border);
+    }
+    .tip, .note, .warn, .important {
+      padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem;
+    }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+
+    /* Steps */
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps > li {
+      counter-increment: step; position: relative;
+      padding-left: 2.75rem; margin-bottom: 1rem;
+    }
+    .steps > li::before {
+      content: counter(step); position: absolute; left: 0; top: .1rem;
+      width: 1.75rem; height: 1.75rem; border-radius: 50%;
+      background: var(--navy); color: #fff; font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    /* UI labels */
+    .ui-label {
+      display: inline-block; background: #eef1f5; border: 1px solid #c8d0da;
+      border-radius: 6px; padding: .1rem .45rem; font-size: .85em; font-weight: 600;
+    }
+    .status-pill {
+      display: inline-block; border-radius: 999px; padding: .15rem .55rem;
+      font-size: .75rem; font-weight: 600;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-escalated { background: #fce7f3; color: #9d174d; }
+    .status-docs { background: #dbeafe; color: #1e40af; }
+    .status-received { background: #d1fae5; color: #065f46; }
+
+    /* Nav map */
+    .nav-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+    .nav-map-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      padding: .85rem 1rem;
+    }
+    .nav-map-item strong { display: block; color: var(--navy); margin-bottom: .25rem; }
+    .nav-map-item span { font-size: .85rem; color: var(--muted); }
+
+    footer {
+      text-align: center; padding: 2rem; color: var(--muted);
+      font-size: .85rem; border-top: 1px solid var(--border); background: #fff;
+    }
+
+    @media print {
+      .doc-sidebar { display: none; }
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-main { padding: 0; }
+      section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Official User Manual</div>
+      <h1>PSC Operator Portal — Complete User Guide</h1>
+      <p class="subtitle">
+        Step-by-step instructions for Public Service Center (PSC) staff who verify citizens,
+        process online eID applications, enrol people in person, and manage fraud review cases.
+        No technical background required.
+      </p>
+      <div class="doc-meta">
+        <span><strong>Audience:</strong> PSC operators &amp; supervisors</span>
+        <span><strong>Portal:</strong> eID PSC Operator Portal</span>
+        <span><strong>Version:</strong> 1.0 · March 2026</span>
+        <span><strong>Related:</strong>
+          <a href="EID_USER_MANUAL_SYSTEM_ADMIN.html" style="color:#fff;">System Admin Manual</a> ·
+          <a href="EID_USER_MANUAL_CITIZEN.html" style="color:#fff;">Citizen Manual</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar" aria-label="Table of contents">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <div class="toc-part">Getting started</div>
+        <a href="#intro">1. Introduction</a>
+        <a href="#login">2. Sign in &amp; sign out</a>
+        <a href="#navigation">3. Portal navigation</a>
+        <a href="#dashboard">4. Dashboard</a>
+
+        <div class="toc-part">Daily work</div>
+        <a href="#queue">5. Enrolment queue</a>
+        <a href="#process">6. Process an application</a>
+        <a href="#supervisor">7. Supervisor &amp; documents</a>
+        <a href="#assisted">8. In-person enrolment</a>
+        <a href="#fraud">9. Fraud review</a>
+
+        <div class="toc-part">Operations</div>
+        <a href="#reconciliation">10. UIN reconciliation</a>
+        <a href="#audit">11. Audit logs</a>
+        <a href="#profile">12. Profile &amp; security</a>
+
+        <div class="toc-part">Reference</div>
+        <a href="#troubleshooting">13. Troubleshooting</a>
+        <a href="#glossary">14. Glossary</a>
+        <a href="#quick-ref">15. Quick reference</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <!-- 1. INTRO -->
+      <section id="intro">
+        <h2>1. Introduction</h2>
+        <p>
+          As a <strong>PSC operator</strong>, you work at the Public Service Center counter or back office
+          to help citizens obtain their national electronic identity (eID). You use the
+          <strong>PSC Operator Portal</strong> in your web browser to:
+        </p>
+        <ul>
+          <li>Review online eID applications submitted by citizens from home</li>
+          <li>Approve, reject, escalate, or request more documents from applicants</li>
+          <li>Enrol citizens in person at the counter (assisted enrolment)</li>
+          <li>Resolve fraud and identity-mismatch cases as a supervisor</li>
+          <li>Monitor system activity through audit logs</li>
+          <li>Retry registry updates when the Civil Registry connection is offline</li>
+        </ul>
+
+        <div class="important">
+          <strong>Your responsibility:</strong> Every decision you make is recorded in the audit trail.
+          Always select the correct <strong>SOP reason code</strong> and add clear verification notes
+          when approving with mismatches or manual overrides.
+        </div>
+
+        <h3>What you need before starting</h3>
+        <table>
+          <tr><th>Item</th><th>Details</th></tr>
+          <tr><td>Web browser</td><td>Chrome, Edge, or Safari (latest version recommended)</td></tr>
+          <tr><td>Your login</td><td>Your work <strong>eID number</strong> or <strong>work email</strong> — not your username alone</td></tr>
+          <tr><td>Password</td><td>Provided by your system administrator</td></tr>
+          <tr><td>Second factor (MFA)</td><td>SMS code or authenticator app — set up under <strong>Security &amp; MFA</strong></td></tr>
+          <tr><td>At the counter</td><td>Webcam for live photo capture; passport scanner/NFC reader if available</td></tr>
+        </table>
+
+        <div class="tip">
+          <strong>Tip:</strong> Set up an authenticator app (TOTP) under
+          <span class="ui-label">Security &amp; MFA</span> as soon as possible.
+          This protects your account and is required for secure daily operations.
+        </div>
+      </section>
+
+      <!-- 2. LOGIN -->
+      <section id="login">
+        <h2>2. Sign in &amp; sign out</h2>
+
+        <h3>How to sign in</h3>
+        <ol class="steps">
+          <li>Open the eID website and click <span class="ui-label">Sign in</span> (or go directly to the login page).</li>
+          <li>Enter your <strong>work email address</strong> or <strong>eID number</strong> (for example, your staff eID starting with <code>ID-SXM-…</code>).</li>
+          <li>Enter your password and click continue.</li>
+          <li>Complete the second verification step:
+            <ul>
+              <li><strong>SMS:</strong> Enter the 6-digit code sent to your registered mobile phone.</li>
+              <li><strong>Authenticator app:</strong> Enter the 6-digit code shown in your app (Google Authenticator, Microsoft Authenticator, etc.).</li>
+            </ul>
+          </li>
+          <li>After successful login, you are taken automatically to the <strong>PSC Operator Portal</strong> dashboard.</li>
+        </ol>
+
+        <div class="warn">
+          <strong>Staff login rule:</strong> You must sign in with your <strong>eID number</strong> or
+          <strong>email address</strong>. Signing in with your username alone (for example, <code>psc_admin</code>)
+          is not accepted for staff accounts.
+        </div>
+
+        <h3>How to sign out</h3>
+        <ol class="steps">
+          <li>Look at the top-right corner of any PSC page.</li>
+          <li>Click <span class="ui-label">Sign Out</span>.</li>
+          <li>Always sign out when leaving your workstation unattended.</li>
+        </ol>
+
+        <h3>Returning to the public citizen website</h3>
+        <p>
+          At the bottom of the left menu, click <span class="ui-label">Exit to Public Portal</span>
+          to leave the PSC portal and go to the public citizen homepage. This does not sign you out.
+        </p>
+      </section>
+
+      <!-- 3. NAVIGATION -->
+      <section id="navigation">
+        <h2>3. Portal navigation</h2>
+        <p>
+          The PSC portal has a <strong>left sidebar menu</strong> that stays visible on every page.
+          The page title at the top changes to show where you are.
+        </p>
+
+        <div class="nav-map">
+          <div class="nav-map-item">
+            <strong>Dashboard</strong>
+            <span>Your home page — overview of pending work and quick links</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>New Enrolment</strong>
+            <span>In-person counter enrolment wizard (7 steps)</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Enrolment Queue</strong>
+            <span>Online applications waiting for your review</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Fraud Review</strong>
+            <span>Supervisor queue for suspected fraud cases</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Reconciliation</strong>
+            <span>Retry Civil Registry updates after offline periods</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Audit Logs</strong>
+            <span>Searchable record of all system actions</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Profile</strong>
+            <span>View your account details and change password</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Security &amp; MFA</strong>
+            <span>Set up authenticator app and passkeys</span>
+          </div>
+        </div>
+
+        <h3>Top bar information</h3>
+        <ul>
+          <li><strong>Government of Sint Maarten</strong> — official header</li>
+          <li><strong>Registry offline</strong> pill — shown when the Civil Registry connection is down (see Section 10)</li>
+          <li>Your name and role (for example, <em>PSC Operator</em>)</li>
+          <li><strong>Sign Out</strong> button</li>
+        </ul>
+
+        <div class="note">
+          If you see a yellow banner saying <strong>Civil Registry offline mode</strong>, verification uses
+          cached local records only. New identity numbers (UINs) are queued until connectivity returns.
+          Use the <strong>Reconciliation</strong> page to replay queued updates.
+        </div>
+      </section>
+
+      <!-- 4. DASHBOARD -->
+      <section id="dashboard">
+        <h2>4. Dashboard</h2>
+        <p>
+          The dashboard is your starting point each day. It shows a summary of work waiting for you
+          and shortcuts to common tasks.
+        </p>
+
+        <h3>What you see on the dashboard</h3>
+        <table>
+          <tr><th>Section</th><th>What it tells you</th></tr>
+          <tr>
+            <td>Welcome banner</td>
+            <td>Greets you by name and offers quick buttons: <span class="ui-label">New in-person enrolment</span>, <span class="ui-label">Enrolment queue</span>, and <span class="ui-label">Set up MFA</span> (if you have not enabled MFA yet)</td>
+          </tr>
+          <tr>
+            <td>Civil Registry status</td>
+            <td><strong>Online</strong> — live verification available. <strong>Offline</strong> — cached records only; write-backs queued.</td>
+          </tr>
+          <tr>
+            <td>Pending enrolments</td>
+            <td>Number of online applications waiting for review</td>
+          </tr>
+          <tr>
+            <td>Fraud review queue</td>
+            <td>Open fraud cases needing supervisor attention</td>
+          </tr>
+          <tr>
+            <td>Audit events</td>
+            <td>Total audit records in the system</td>
+          </tr>
+          <tr>
+            <td>Account security</td>
+            <td><strong>Protected</strong> (MFA enabled) or <strong>Setup recommended</strong></td>
+          </tr>
+          <tr>
+            <td>Recent audit activity</td>
+            <td>Last few actions — click <span class="ui-label">View all</span> for the full audit page</td>
+          </tr>
+        </table>
+
+        <h3>Quick actions</h3>
+        <p>Use the quick action buttons to jump directly to:</p>
+        <ul>
+          <li>New enrolment (counter service)</li>
+          <li>Review enrolments (queue)</li>
+          <li>Fraud review queue</li>
+          <li>UIN reconciliation</li>
+          <li>View audit logs</li>
+          <li>Manage profile</li>
+          <li>Security settings</li>
+        </ul>
+
+        <p>Click <span class="ui-label">Refresh status</span> to reload the latest counts.</p>
+      </section>
+
+      <!-- 5. QUEUE -->
+      <section id="queue">
+        <h2>5. Enrolment queue</h2>
+        <p>
+          Citizens who apply for an eID online from home appear in the <strong>Enrolment Queue</strong>.
+          Your job is to verify their information against the Civil Registry, review their documents and
+          live photo, and make a decision.
+        </p>
+
+        <h3>Opening the queue</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Enrolment Queue</span> in the left menu.</li>
+          <li>Click <span class="ui-label">Refresh queue</span> to load the latest applications.</li>
+        </ol>
+
+        <h3>Filter tabs — what each tab shows</h3>
+        <table>
+          <tr><th>Tab</th><th>Shows applications that are…</th></tr>
+          <tr><td><span class="ui-label">All</span></td><td>Every application in the system</td></tr>
+          <tr><td><span class="ui-label">Pending review</span></td><td>New applications waiting for a first decision</td></tr>
+          <tr><td><span class="ui-label">Supervisor queue</span></td><td>Escalated cases, cases awaiting documents, and cases where documents were re-submitted</td></tr>
+          <tr><td><span class="ui-label">Escalated</span></td><td>Cases you or a colleague sent to a supervisor</td></tr>
+          <tr><td><span class="ui-label">Awaiting docs</span></td><td>Cases where you asked the citizen to upload more documents — waiting for them to respond</td></tr>
+          <tr><td><span class="ui-label">Docs received</span></td><td>Citizen has re-uploaded documents — ready for supervisor review and approval</td></tr>
+        </table>
+
+        <h3>Understanding a queue card</h3>
+        <p>Each application card shows:</p>
+        <ul>
+          <li><strong>Applicant name</strong> and a status badge</li>
+          <li><strong>National ID</strong> (NID) and <strong>Session</strong> reference number</li>
+          <li><strong>Submitted</strong> date and applicant <strong>email</strong></li>
+          <li><strong>Supervisor note</strong> (if any previous action was taken)</li>
+        </ul>
+
+        <h3>Status badges</h3>
+        <table>
+          <tr><th>Badge</th><th>Meaning</th><th>Your next action</th></tr>
+          <tr>
+            <td><span class="status-pill status-pending">Pending review</span></td>
+            <td>New application</td>
+            <td>Click <span class="ui-label">Process</span> to review and decide</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-escalated">Escalated</span></td>
+            <td>Sent to supervisor</td>
+            <td>Click <span class="ui-label">Supervisor review</span></td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-docs">Awaiting documents</span></td>
+            <td>Waiting for citizen to re-upload</td>
+            <td>Click <span class="ui-label">Track</span> — citizen must resume at the public enrolment page</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-received">Documents received</span></td>
+            <td>Citizen has uploaded new documents</td>
+            <td>Click <span class="ui-label">Supervisor review</span> then approve or reject</td>
+          </tr>
+        </table>
+
+        <h3>View vs Process</h3>
+        <ul>
+          <li><span class="ui-label">View</span> — read-only look at the application (no decisions)</li>
+          <li><span class="ui-label">Process</span> / <span class="ui-label">Supervisor review</span> / <span class="ui-label">Track</span> — opens the decision screen</li>
+        </ul>
+
+        <div class="note">
+          When an application is <strong>Awaiting documents</strong>, tell the citizen to go to the public
+          eID enrolment page and enter their <strong>session reference</strong> to upload the requested documents.
+        </div>
+      </section>
+
+      <!-- 6. PROCESS -->
+      <section id="process">
+        <h2>6. Process an application</h2>
+        <p>
+          When you click <span class="ui-label">Process</span> on a queue card, the
+          <strong>Process eID Application</strong> screen opens. This is where you compare the citizen's
+          submission with Civil Registry records and choose an outcome.
+        </p>
+
+        <h3>Step-by-step: reviewing an application</h3>
+        <ol class="steps">
+          <li>
+            <strong>Check the session reference</strong> at the top — this is the unique ID for this application.
+          </li>
+          <li>
+            <strong>Load Civil Registry data.</strong> The system usually loads this automatically.
+            If not, click <span class="ui-label">Refresh registry</span>.
+            <ul>
+              <li>Green banner: applicant details <strong>match</strong> the registry.</li>
+              <li>Yellow banner: <strong>mismatches found</strong> — review each field carefully.</li>
+              <li>Red banner: registry record <strong>not found</strong> — verify National ID and date of birth.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Compare two columns:</strong>
+            <ul>
+              <li><strong>Applicant submitted</strong> — what the citizen entered (you can correct typos here)</li>
+              <li><strong>Civil Registry</strong> — official government record (read-only)</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Review documents and photos</strong> in the <em>Submitted photos &amp; documents</em> section:
+            <ul>
+              <li><strong>Live photo</strong> — portrait captured during online enrolment</li>
+              <li><strong>ID front</strong> and <strong>ID back</strong> — photos of identity documents</li>
+            </ul>
+            Click <span class="ui-label">Download</span> on any document to view it full size.
+          </li>
+          <li>
+            <strong>Choose your decision</strong> (see table below).
+          </li>
+          <li>
+            <strong>Select the SOP reason code</strong> — the system suggests the correct code based on your decision.
+            Change it only if another code better describes the situation.
+          </li>
+          <li>
+            <strong>Add verification notes</strong> (recommended for approvals with mismatches, rejections, and escalations).
+          </li>
+          <li>
+            Click <span class="ui-label">Confirm Approval</span>, <span class="ui-label">Confirm Rejection</span>,
+            or the matching confirm button for your decision.
+          </li>
+        </ol>
+
+        <h3>Decision options</h3>
+        <table>
+          <tr><th>Decision</th><th>When to use it</th><th>Result</th></tr>
+          <tr>
+            <td><span class="ui-label">Approve &amp; Issue eID</span></td>
+            <td>Identity verified; documents acceptable; registry matches (or mismatch explained in notes with SOP 01)</td>
+            <td>Citizen receives eID number and UIN; account becomes active</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Request Additional Documents</span></td>
+            <td>Documents are missing, unclear, or poor quality</td>
+            <td>Citizen must re-upload via the public enrolment page; status becomes <em>Awaiting documents</em></td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Escalate to Supervisor</span></td>
+            <td>Complex case needing senior review; unsure about approval</td>
+            <td>Case moves to supervisor queue; no eID issued yet</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Send to Fraud Review</span></td>
+            <td>Suspected fraud, stolen identity, or serious data mismatch</td>
+            <td>Case goes to Fraud Review page; no eID issued until supervisor resolves</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Reject Application</span></td>
+            <td>Applicant is ineligible or provided false information</td>
+            <td>Application closed; citizen notified; no eID issued</td>
+          </tr>
+        </table>
+
+        <div class="important">
+          You <strong>cannot approve</strong> an application while its status is
+          <span class="status-pill status-docs">Awaiting documents</span>.
+          Wait until the citizen re-uploads and the status changes to
+          <span class="status-pill status-received">Documents received</span>.
+        </div>
+
+        <h3>Approving when data does not match</h3>
+        <p>
+          If the applicant's name, date of birth, gender, nationality, or address does not match the Civil Registry:
+        </p>
+        <ol class="steps">
+          <li>Read the yellow mismatch banner — it tells you how many fields differ.</li>
+          <li>Correct obvious typos in the applicant column if the citizen made a data entry error.</li>
+          <li>If the mismatch is genuine (for example, name spelling difference), do not approve without supervisor awareness.</li>
+          <li>The SOP code automatically switches to <strong>01 - Manual identity override</strong>.</li>
+          <li>Write clear verification notes explaining why you approved despite the mismatch.</li>
+          <li>Click <span class="ui-label">Confirm Approval</span>.</li>
+        </ol>
+
+        <h3>Rejecting an application</h3>
+        <ol class="steps">
+          <li>Select <span class="ui-label">Reject Application</span>.</li>
+          <li>Choose SOP code <strong>04 - Applicant ineligible</strong> or <strong>05 - Document quality insufficient</strong>.</li>
+          <li>Add notes explaining the reason (these may be reviewed later).</li>
+          <li>Click <span class="ui-label">Confirm Rejection</span>.</li>
+        </ol>
+      </section>
+
+      <!-- 7. SUPERVISOR -->
+      <section id="supervisor">
+        <h2>7. Supervisor workflow &amp; document requests</h2>
+
+        <h3>Requesting additional documents from a citizen</h3>
+        <ol class="steps">
+          <li>Open the application and select <span class="ui-label">Request Additional Documents</span>.</li>
+          <li>Choose SOP code <strong>03 - Request additional documents</strong> or <strong>05 - Document quality insufficient</strong>.</li>
+          <li>Write clear notes explaining exactly what the citizen must provide (for example, "Please upload a clearer photo of your ID front").</li>
+          <li>Click <span class="ui-label">Confirm Document Request</span>.</li>
+          <li>Tell the citizen to visit the public eID enrolment page and enter their <strong>session reference</strong> to upload the new documents.</li>
+          <li>The application moves to the <span class="ui-label">Awaiting docs</span> tab. Use <span class="ui-label">Track</span> to monitor progress.</li>
+        </ol>
+
+        <h3>After the citizen re-uploads documents</h3>
+        <ol class="steps">
+          <li>Go to the <span class="ui-label">Docs received</span> tab (or <span class="ui-label">Supervisor queue</span>).</li>
+          <li>Click <span class="ui-label">Supervisor review</span> on the application.</li>
+          <li>Review the newly uploaded documents and live photo.</li>
+          <li>Approve with <span class="ui-label">Confirm Approval</span> or reject if still insufficient.</li>
+        </ol>
+
+        <h3>Escalating to a supervisor</h3>
+        <ol class="steps">
+          <li>Select <span class="ui-label">Escalate to Supervisor</span>.</li>
+          <li>Choose SOP <strong>02 - Escalate to supervisor</strong> or <strong>01 - Manual override required</strong>.</li>
+          <li>Explain the situation in verification notes.</li>
+          <li>Click <span class="ui-label">Confirm Escalation</span>.</li>
+          <li>A supervisor picks up the case from the <span class="ui-label">Escalated</span> or <span class="ui-label">Supervisor queue</span> tab.</li>
+        </ol>
+
+        <h3>Sending to fraud review</h3>
+        <ol class="steps">
+          <li>Select <span class="ui-label">Send to Fraud Review</span>.</li>
+          <li>SOP code <strong>99 - Suspected fraud / data mismatch</strong> is applied automatically.</li>
+          <li>Add detailed notes about your suspicion.</li>
+          <li>Click <span class="ui-label">Confirm Fraud Review</span>.</li>
+          <li>Resolve the case on the <strong>Fraud Review</strong> page (Section 9).</li>
+        </ol>
+      </section>
+
+      <!-- 8. ASSISTED ENROLMENT -->
+      <section id="assisted">
+        <h2>8. In-person enrolment (counter service)</h2>
+        <p>
+          Use <span class="ui-label">New Enrolment</span> when a citizen comes to the PSC counter in person
+          and does not have an active online application. This 7-step wizard verifies their identity,
+          captures a live photo, and issues an eID immediately upon approval.
+        </p>
+
+        <div class="tip">
+          Before starting, ask the citizen for their National ID card, passport (if applicable),
+          and proof of address if needed. Have the webcam ready for the live photo step.
+        </div>
+
+        <h3>The 7 steps</h3>
+
+        <h4>Step 1 — Personal details</h4>
+        <p>Enter information exactly as it appears in the Civil Registry:</p>
+        <ul>
+          <li>First name, last name, gender, nationality, date of birth</li>
+          <li>If the applicant is <strong>under 12 years old</strong>, also enter the parent or legal guardian name</li>
+        </ul>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 2 — Contact information</h4>
+        <ul>
+          <li>Residential address</li>
+          <li>Email address (must be valid format)</li>
+          <li>Mobile number (include country code, for example +1 721 …)</li>
+        </ul>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 3 — Identity documents</h4>
+        <ul>
+          <li><strong>National ID (NID)</strong> — required; enter exactly as printed on the physical card</li>
+          <li>Passport number and expiry — optional unless verifying via ePassport</li>
+        </ul>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 4 — ePassport verification</h4>
+        <p>Choose one of two methods:</p>
+        <table>
+          <tr><th>Method</th><th>When to use</th><th>What to do</th></tr>
+          <tr>
+            <td><strong>ePassport chip / MRZ</strong></td>
+            <td>Citizen has a biometric passport with a readable chip</td>
+            <td>
+              Click <span class="ui-label">Read ePassport chip (NFC)</span> or paste the MRZ lines,
+              then click <span class="ui-label">Verify MRZ against entered data</span>.
+              All fields should show green (match).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Documentary verification (Pattern B)</strong></td>
+            <td>No chip reader available, or document has no chip</td>
+            <td>
+              Select Pattern B and visually inspect the physical passport or ID.
+              You take responsibility for manual document checks.
+            </td>
+          </tr>
+        </table>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 5 — Civil Registry verification</h4>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Load Civil Registry</span>.</li>
+          <li>Compare <strong>Applicant entered</strong> vs <strong>Civil Registry</strong> side by side.</li>
+          <li>Each field shows a <strong>Match</strong> or <strong>Mismatch</strong> badge.</li>
+          <li>If mismatches exist, verify with the citizen before continuing.</li>
+        </ol>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 6 — Live photo capture</h4>
+        <ol class="steps">
+          <li>The camera starts automatically. Ask the citizen to face the camera directly.</li>
+          <li>Click <span class="ui-label">Capture photo</span> when ready.</li>
+          <li>If the camera is unavailable, click <span class="ui-label">Upload photo</span> instead (JPG, PNG, or WebP, max 5 MB).</li>
+          <li>Use <span class="ui-label">Retake photo</span> if the image is unclear.</li>
+        </ol>
+        <p>Click <span class="ui-label">Continue →</span></p>
+
+        <h4>Step 7 — Review &amp; issue eID</h4>
+        <ol class="steps">
+          <li>Review the full summary including the portrait preview.</li>
+          <li>Select the <strong>SOP reason code</strong>:
+            <ul>
+              <li><strong>00 — Standard verification passed</strong> — everything matched cleanly</li>
+              <li><strong>01 — Manual override (supervisor)</strong> — you overrode a mismatch or used Pattern B</li>
+              <li><strong>99 — Rejected: suspected fraud</strong> — do not issue; stops the process</li>
+            </ul>
+          </li>
+          <li>Add verification notes if using code 01 or 99.</li>
+          <li>Click <span class="ui-label">Issue eID</span>.</li>
+        </ol>
+
+        <h3>Success screen</h3>
+        <p>When enrolment succeeds, you see:</p>
+        <ul>
+          <li>The new <strong>eID number</strong> (for example, <code>ID-SXM-26-…</code>)</li>
+          <li>The citizen's <strong>UIN</strong> (Unique Identification Number)</li>
+          <li>Full name and National ID</li>
+        </ul>
+        <p>
+          Give the citizen their eID number. They can then sign in to the citizen portal to set up
+          their password and MFA.
+        </p>
+        <p>
+          Click <span class="ui-label">Enrol another citizen</span> to start again, or
+          <span class="ui-label">View enrolment queue</span> to return to online applications.
+        </p>
+
+        <div class="warn">
+          If the Civil Registry is offline, enrolment still works using cached records, but the UIN
+          write-back is queued. Check the <strong>Reconciliation</strong> page after connectivity returns.
+        </div>
+      </section>
+
+      <!-- 9. FRAUD -->
+      <section id="fraud">
+        <h2>9. Fraud review</h2>
+        <p>
+          Cases sent for fraud review appear on the <strong>Fraud Review</strong> page.
+          <strong>No eID is issued until a supervisor approves the case here.</strong>
+        </p>
+
+        <h3>Opening the fraud queue</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Fraud Review</span> in the left menu.</li>
+          <li>Use filter <span class="ui-label">Open only</span> to see active cases, or <span class="ui-label">All statuses</span> for history.</li>
+          <li>Click <span class="ui-label">Review</span> on a case to open details.</li>
+        </ol>
+
+        <h3>Reviewing a fraud case</h3>
+        <p>The detail panel shows:</p>
+        <ul>
+          <li>Applicant personal details and National ID</li>
+          <li>Source of the case (online application or counter enrolment)</li>
+          <li>SOP reason code that was applied</li>
+          <li>Submitted documents: live photo, ID front, ID back</li>
+        </ul>
+
+        <h3>Supervisor decision</h3>
+        <table>
+          <tr><th>Decision</th><th>SOP codes</th><th>Outcome</th></tr>
+          <tr>
+            <td><span class="ui-label">Approve &amp; issue eID</span></td>
+            <td>00 - Standard verification passed<br>01 - Manual identity override</td>
+            <td>eID and UIN issued; case closed as Approved</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Reject — close case</span></td>
+            <td>04 - Applicant ineligible<br>99 - Confirmed fraud</td>
+            <td>No eID issued; case closed as Rejected</td>
+          </tr>
+        </table>
+
+        <ol class="steps">
+          <li>Review all evidence carefully.</li>
+          <li>Select your decision and SOP code.</li>
+          <li>Add verification notes explaining your reasoning.</li>
+          <li>Click <span class="ui-label">Confirm approval</span> or <span class="ui-label">Confirm rejection</span>.</li>
+        </ol>
+
+        <div class="important">
+          Do not approve a fraud case with SOP code 99 (confirmed fraud). Use rejection instead.
+        </div>
+      </section>
+
+      <!-- 10. RECONCILIATION -->
+      <section id="reconciliation">
+        <h2>10. UIN write-back reconciliation</h2>
+        <p>
+          When the Civil Registry connection is offline, approved enrolments still create eID numbers locally,
+          but the official UIN update to the Civil Registry is <strong>queued</strong> until connectivity returns.
+          The <strong>Reconciliation</strong> page lets you replay these queued updates.
+        </p>
+
+        <h3>When to use this page</h3>
+        <ul>
+          <li>The dashboard shows <strong>Civil Registry offline mode is active</strong></li>
+          <li>The dashboard stat shows write-backs <strong>awaiting replay</strong></li>
+          <li>Your IT team confirms the registry connection is restored</li>
+        </ul>
+
+        <h3>Running reconciliation</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Reconciliation</span> in the left menu.</li>
+          <li>Review the summary counts: awaiting write-back, manual intervention, completed.</li>
+          <li>Click <span class="ui-label">Run reconciliation</span> to process all queued items.</li>
+          <li>Wait for the success summary showing processed, succeeded, and failed counts.</li>
+          <li>For individual failed items, click <span class="ui-label">Retry</span> on that row.</li>
+        </ol>
+
+        <h3>Queue status meanings</h3>
+        <table>
+          <tr><th>Status</th><th>Meaning</th><th>Action</th></tr>
+          <tr><td>Pending</td><td>Waiting to be sent to Civil Registry</td><td>Run reconciliation</td></tr>
+          <tr><td>Retry scheduled</td><td>Failed once; will retry automatically</td><td>Wait or click Retry</td></tr>
+          <tr><td>Failed</td><td>Could not write back</td><td>Click Retry; contact IT if it keeps failing</td></tr>
+          <tr><td>Manual intervention</td><td>Needs IT or registry office attention</td><td>Contact your system administrator</td></tr>
+          <tr><td>Completed</td><td>Successfully written to Civil Registry</td><td>No action needed</td></tr>
+        </table>
+      </section>
+
+      <!-- 11. AUDIT -->
+      <section id="audit">
+        <h2>11. Audit logs</h2>
+        <p>
+          Every action in the eID system is recorded in the audit trail. Use this page to look up
+          what happened for a specific citizen, session, or operator.
+        </p>
+
+        <h3>Searching audit records</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Audit Logs</span> in the left menu.</li>
+          <li>Use the search box: type an actor name, session reference, National ID, or action name.</li>
+          <li>Click <span class="ui-label">Search</span>.</li>
+        </ol>
+
+        <h3>Quick filters</h3>
+        <ul>
+          <li><strong>Outcome:</strong> All · Success · Failed · MFA pending · Blocked</li>
+          <li><strong>Period:</strong> All time · Today · Last 7 days · Last 30 days</li>
+          <li><strong>Stat chips</strong> at the top — click Total events, Today, Successful, or Failed / blocked</li>
+        </ul>
+
+        <h3>Advanced filters</h3>
+        <p>For precise searches, expand advanced filters and fill in:</p>
+        <ul>
+          <li>Subject ID (citizen UIN or NID)</li>
+          <li>Actor (operator who performed the action)</li>
+          <li>Action type (for example, <code>PROCESS_ENROLMENT</code>, <code>ASSISTED_ENROLMENT</code>)</li>
+          <li>Outcome and date range</li>
+        </ul>
+        <p>Click <span class="ui-label">Apply advanced filters</span> or <span class="ui-label">Reset everything</span> to clear.</p>
+
+        <h3>Reading a log entry</h3>
+        <p>Each row shows: <strong>When</strong> · <strong>Action</strong> · <strong>Actor</strong> · <strong>Subject</strong> · <strong>Outcome</strong> · <strong>Source</strong></p>
+        <p>Click <span class="ui-label">More</span> to expand full details including Event ID, category, IP address, and additional data.</p>
+        <p>Use <span class="ui-label">Previous</span> and <span class="ui-label">Next</span> at the bottom to browse pages.</p>
+
+        <div class="note">
+          Passwords and OTP codes are never shown in audit details. If you need a record of a specific
+          enrolment decision, search by session reference or National ID.
+        </div>
+      </section>
+
+      <!-- 12. PROFILE & SECURITY -->
+      <section id="profile">
+        <h2>12. Profile &amp; security settings</h2>
+
+        <h3>Viewing your profile</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Profile</span> in the left menu.</li>
+          <li>View your username, eID number, email, mobile, role, and MFA status.</li>
+          <li>Click <span class="ui-label">View full account details</span> for a complete read-only summary.</li>
+        </ol>
+        <div class="note">
+          Profile fields (email, mobile, role) are <strong>read-only</strong>.
+          Contact your system administrator to update account details.
+        </div>
+
+        <h3>Changing your password</h3>
+        <ol class="steps">
+          <li>On the Profile page, find the <strong>Change password</strong> section.</li>
+          <li>Enter your current password, new password, and confirm the new password.</li>
+          <li>New password must be at least 8 characters.</li>
+          <li>Click <span class="ui-label">Update password</span>.</li>
+        </ol>
+
+        <h3>Setting up an authenticator app (recommended)</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Security &amp; MFA</span> in the left menu.</li>
+          <li>Under TOTP authenticator, click <span class="ui-label">Set up authenticator app</span>.</li>
+          <li>Scan the QR code with Google Authenticator, Microsoft Authenticator, or similar.</li>
+          <li>Enter the 6-digit code from the app to confirm.</li>
+          <li>Your dashboard will now show account security as <strong>Protected</strong>.</li>
+        </ol>
+
+        <h3>Registering a passkey (optional)</h3>
+        <ol class="steps">
+          <li>On the Security &amp; MFA page, click <span class="ui-label">Register passkey</span>.</li>
+          <li>Follow your browser's prompt (fingerprint, face, or device PIN).</li>
+          <li>Next time you sign in, you can use the passkey instead of a password.</li>
+        </ol>
+
+        <h3>Disabling the authenticator app</h3>
+        <ol class="steps">
+          <li>On Security &amp; MFA, find the TOTP section.</li>
+          <li>Enter your current authenticator code to confirm disable.</li>
+        </ol>
+        <div class="warn">
+          Disabling MFA reduces account security. Your administrator may require MFA for all PSC staff.
+        </div>
+      </section>
+
+      <!-- 13. TROUBLESHOOTING -->
+      <section id="troubleshooting">
+        <h2>13. Troubleshooting common messages</h2>
+        <table>
+          <tr><th>Message you see</th><th>What it means</th><th>What to do</th></tr>
+          <tr>
+            <td>No Civil Registry record found</td>
+            <td>NID or date of birth does not match any registry entry</td>
+            <td>Ask the citizen to verify their NID and DOB. Contact the Civil Registry office if the citizen insists the details are correct.</td>
+          </tr>
+          <tr>
+            <td>Civil Registry live API is offline</td>
+            <td>Live registry connection is down; cached records used</td>
+            <td>Continue with caution using cached data. Run reconciliation when back online.</td>
+          </tr>
+          <tr>
+            <td>Processing failed</td>
+            <td>Your decision could not be saved</td>
+            <td>Try again. If it persists, note the session reference and contact IT support.</td>
+          </tr>
+          <tr>
+            <td>Camera permission denied</td>
+            <td>Browser blocked camera access</td>
+            <td>Allow camera in browser settings, or use <span class="ui-label">Upload photo</span> instead.</td>
+          </tr>
+          <tr>
+            <td>No camera found</td>
+            <td>No webcam detected</td>
+            <td>Connect a webcam or upload a photo file.</td>
+          </tr>
+          <tr>
+            <td>Camera requires a secure connection</td>
+            <td>Page not served over HTTPS</td>
+            <td>Use the official government URL (HTTPS). Contact IT if the problem continues.</td>
+          </tr>
+          <tr>
+            <td>Enrolment failed</td>
+            <td>Counter enrolment could not complete</td>
+            <td>Check all required fields and Civil Registry load. Try again or escalate.</td>
+          </tr>
+          <tr>
+            <td>Could not load fraud review queue</td>
+            <td>Temporary system error</td>
+            <td>Click Refresh. Contact IT if the page stays empty.</td>
+          </tr>
+          <tr>
+            <td>Reconciliation failed</td>
+            <td>Batch replay did not complete</td>
+            <td>Check Civil Registry is online. Retry individual items.</td>
+          </tr>
+          <tr>
+            <td>Invalid code. Try again.</td>
+            <td>Wrong authenticator or OTP code</td>
+            <td>Wait for a new code (TOTP rotates every 30 seconds) and re-enter carefully.</td>
+          </tr>
+          <tr>
+            <td>Loading PSC portal… (stuck)</td>
+            <td>Session expired or network issue</td>
+            <td>Refresh the page. Sign in again if redirected to login.</td>
+          </tr>
+        </table>
+
+        <h3>When to contact your system administrator</h3>
+        <ul>
+          <li>You cannot sign in after multiple attempts</li>
+          <li>Your role or email needs updating</li>
+          <li>Reconciliation items stay in <strong>Manual intervention</strong></li>
+          <li>Civil Registry offline for an extended period</li>
+          <li>You suspect unauthorized access to your account</li>
+        </ul>
+      </section>
+
+      <!-- 14. GLOSSARY -->
+      <section id="glossary">
+        <h2>14. Glossary</h2>
+        <table>
+          <tr><th>Term</th><th>Meaning</th></tr>
+          <tr><td>eID</td><td>Electronic identity — the citizen's digital login identity (format: ID-SXM-…)</td></tr>
+          <tr><td>UIN</td><td>Unique Identification Number — official identity number in the Civil Registry</td></tr>
+          <tr><td>NID / National ID</td><td>National identification number as printed on the physical ID card</td></tr>
+          <tr><td>PSC</td><td>Public Service Center — government counter where citizens receive services</td></tr>
+          <tr><td>Civil Registry</td><td>Official government database of citizen identity records</td></tr>
+          <tr><td>MFA</td><td>Multi-factor authentication — second verification step after password (SMS or app)</td></tr>
+          <tr><td>TOTP</td><td>Time-based one-time password — 6-digit code from an authenticator app</td></tr>
+          <tr><td>MRZ</td><td>Machine Readable Zone — the two lines of text at the bottom of a passport bio page</td></tr>
+          <tr><td>ePassport</td><td>Biometric passport with an NFC chip containing identity data</td></tr>
+          <tr><td>Pattern B</td><td>Manual documentary verification when chip/MRZ electronic check is not used</td></tr>
+          <tr><td>Live photo</td><td>Portrait captured by camera during enrolment (online or at counter)</td></tr>
+          <tr><td>Session reference</td><td>Unique code for an online enrolment application (citizen uses it to resume)</td></tr>
+          <tr><td>SOP reason code</td><td>Standard Operating Procedure code — records why a decision was made</td></tr>
+          <tr><td>Write-back</td><td>Sending a newly issued UIN back to the Civil Registry system</td></tr>
+          <tr><td>Reconciliation</td><td>Replaying queued write-backs after the registry connection is restored</td></tr>
+          <tr><td>Audit trail</td><td>Permanent log of all actions for compliance and investigation</td></tr>
+        </table>
+      </section>
+
+      <!-- 15. QUICK REF -->
+      <section id="quick-ref">
+        <h2>15. Quick reference</h2>
+
+        <h3>SOP reason codes</h3>
+        <table>
+          <tr><th>Code</th><th>Label</th><th>Use when…</th></tr>
+          <tr><td>00-STANDARD-APPROVAL</td><td>00 — Standard verification passed</td><td>Clean match; no issues</td></tr>
+          <tr><td>01-MANUAL-OVERRIDE</td><td>01 — Manual identity override</td><td>Mismatch resolved; Pattern B used; supervisor override</td></tr>
+          <tr><td>02-SUPERVISOR-REVIEW</td><td>02 — Escalate to supervisor</td><td>Case needs senior review</td></tr>
+          <tr><td>03-REQUEST-DOCUMENTS</td><td>03 — Request additional documents</td><td>Missing or incomplete documents</td></tr>
+          <tr><td>04-INELIGIBLE-APPLICANT</td><td>04 — Applicant ineligible</td><td>Reject — person cannot receive eID</td></tr>
+          <tr><td>05-POOR-DOC-QUALITY</td><td>05 — Document quality insufficient</td><td>Reject or request re-upload — blurry/unreadable docs</td></tr>
+          <tr><td>99-FRAUD-SUSPECTED</td><td>99 — Suspected fraud / data mismatch</td><td>Send to fraud review or confirm fraud on rejection</td></tr>
+        </table>
+
+        <h3>Daily workflow checklist</h3>
+        <div class="card">
+          <label><input type="checkbox"> Sign in with eID/email + MFA</label><br>
+          <label><input type="checkbox"> Check dashboard for pending count and registry status</label><br>
+          <label><input type="checkbox"> Process <span class="ui-label">Pending review</span> applications</label><br>
+          <label><input type="checkbox"> Check <span class="ui-label">Docs received</span> for re-submitted applications</label><br>
+          <label><input type="checkbox"> Review open <span class="ui-label">Fraud Review</span> cases</label><br>
+          <label><input type="checkbox"> Run <span class="ui-label">Reconciliation</span> if registry was offline</label><br>
+          <label><input type="checkbox"> Sign out when leaving workstation</label>
+        </div>
+
+        <h3>What PSC operators cannot do</h3>
+        <ul>
+          <li>Access the System Admin portal (<strong>/admin</strong>) — user management is for administrators only</li>
+          <li>Create or deactivate other staff accounts</li>
+          <li>Change your own email, mobile, or role (contact administrator)</li>
+          <li>Approve applications while status is <em>Awaiting documents</em></li>
+          <li>Issue eID during counter enrolment when SOP 99 (suspected fraud) is selected</li>
+          <li>Delete or edit audit log entries</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · PSC Operator User Manual v1.0 · March 2026<br>
+    See also: <a href="EID_USER_MANUAL_SYSTEM_ADMIN.html">System Administrator User Manual</a> ·
+    <a href="EID_USER_MANUAL_CITIZEN.html">Citizen User Manual</a><br>
+    For technical support contact your IT system administrator.
+  </footer>
+
+  <script>
+    // Highlight active TOC link on scroll
+    const sections = document.querySelectorAll('main section[id]');
+    const tocLinks = document.querySelectorAll('.toc-nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const active = document.querySelector('.toc-nav a[href="#' + entry.target.id + '"]');
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Citizen User Manual — Sint Maarten eID Platform</title>
+  <style>
+    :root {
+      --navy: #0b2e4e;
+      --navy-light: #134a75;
+      --green: #1a7f4c;
+      --green-bg: #eef8f1;
+      --red: #b42318;
+      --red-bg: #fef3f2;
+      --amber: #b54708;
+      --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb;
+      --bg: #f4f6f8;
+      --card: #fff;
+      --muted: #5c6773;
+      --border: #dde2ea;
+      --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6;
+    }
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { left: 1rem; top: 1rem; z-index: 999; background: #fff; padding: .5rem 1rem; }
+
+    .doc-header {
+      background: linear-gradient(135deg, var(--navy) 0%, #0a5c8a 100%);
+      color: #fff; padding: 2.5rem 2rem 2rem;
+    }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge {
+      display: inline-block; background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25); border-radius: 999px;
+      padding: .25rem .75rem; font-size: .75rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem;
+    }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.2; }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 720px; font-size: 1.05rem; }
+    .doc-meta {
+      display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem;
+      font-size: .875rem; opacity: .85;
+    }
+
+    .doc-layout {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: var(--sidebar-w) 1fr; gap: 0;
+      min-height: calc(100vh - 200px);
+    }
+    @media (max-width: 900px) {
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+
+    .doc-sidebar {
+      position: sticky; top: 0; align-self: start;
+      height: 100vh; overflow-y: auto;
+      background: #fff; border-right: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+    .toc-title {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem;
+    }
+    .toc-nav a {
+      display: block; padding: .4rem 1.25rem .4rem 1.5rem;
+      color: var(--navy); text-decoration: none; font-size: .875rem;
+      border-left: 3px solid transparent;
+    }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .toc-nav a.active { border-left-color: var(--navy); background: var(--blue-bg); font-weight: 600; }
+    .toc-nav .toc-part {
+      padding: .75rem 1.25rem .25rem; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    }
+
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 {
+      color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem;
+      padding-bottom: .5rem; border-bottom: 2px solid var(--border);
+    }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    h4 { font-size: .95rem; margin: 1rem 0 .5rem; color: #333; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    a:hover { text-decoration: underline; }
+
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      border: 1px solid var(--border);
+    }
+    .tip, .note, .warn, .important {
+      padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem;
+    }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps > li {
+      counter-increment: step; position: relative;
+      padding-left: 2.75rem; margin-bottom: 1rem;
+    }
+    .steps > li::before {
+      content: counter(step); position: absolute; left: 0; top: .1rem;
+      width: 1.75rem; height: 1.75rem; border-radius: 50%;
+      background: var(--navy); color: #fff; font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    .ui-label {
+      display: inline-block; background: #eef1f5; border: 1px solid #c8d0da;
+      border-radius: 6px; padding: .1rem .45rem; font-size: .85em; font-weight: 600;
+    }
+    .status-pill {
+      display: inline-block; border-radius: 999px; padding: .15rem .55rem;
+      font-size: .75rem; font-weight: 600;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-docs { background: #dbeafe; color: #1e40af; }
+    .status-received { background: #d1fae5; color: #065f46; }
+    .status-approved { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+
+    .journey-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; }
+    .journey-map-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      padding: .85rem 1rem;
+    }
+    .journey-map-item strong { display: block; color: var(--navy); margin-bottom: .25rem; }
+    .journey-map-item span { font-size: .85rem; color: var(--muted); }
+
+    footer {
+      text-align: center; padding: 2rem; color: var(--muted);
+      font-size: .85rem; border-top: 1px solid var(--border); background: #fff;
+    }
+
+    @media print {
+      .doc-sidebar { display: none; }
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-main { padding: 0; }
+      section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Official User Manual</div>
+      <h1>Citizen eID — Complete User Guide</h1>
+      <p class="subtitle">
+        Everything you need to apply for your electronic identity online or at a PSC office,
+        track your application, re-submit documents when asked, sign in securely, and use
+        government digital services. Written for citizens — no technical background required.
+      </p>
+      <div class="doc-meta">
+        <span><strong>Audience:</strong> Citizens &amp; residents of Sint Maarten</span>
+        <span><strong>Portal:</strong> Public eID website</span>
+        <span><strong>Version:</strong> 1.0 · March 2026</span>
+        <span><strong>Related:</strong>
+          <a href="EID_USER_MANUAL_PSC_ADMIN.html" style="color:#fff;">PSC Operator Manual</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar" aria-label="Table of contents">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <div class="toc-part">Getting started</div>
+        <a href="#intro">1. Introduction</a>
+        <a href="#before-start">2. Before you apply</a>
+        <a href="#paths">3. Two ways to get an eID</a>
+
+        <div class="toc-part">Enrolment</div>
+        <a href="#online-enrol">4. Online self-enrolment</a>
+        <a href="#after-submit">5. After you submit</a>
+        <a href="#resume">6. Resume your application</a>
+        <a href="#resubmit-docs">7. Re-submit documents</a>
+        <a href="#psc-counter">8. In-person enrolment at PSC</a>
+        <a href="#outcomes">9. Application outcomes</a>
+
+        <div class="toc-part">Daily use</div>
+        <a href="#sign-in">10. Sign in to your eID</a>
+        <a href="#dashboard">11. Dashboard &amp; profile</a>
+        <a href="#security">12. Security settings</a>
+        <a href="#gov-services">13. Government services login</a>
+        <a href="#recovery">14. Lost access recovery</a>
+
+        <div class="toc-part">Reference</div>
+        <a href="#special-cases">15. Special cases</a>
+        <a href="#troubleshooting">16. Troubleshooting</a>
+        <a href="#glossary">17. Glossary</a>
+        <a href="#quick-ref">18. Quick reference</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <section id="intro">
+        <h2>1. Introduction</h2>
+        <p>
+          Your <strong>eID (electronic identity)</strong> is your secure digital identity for Sint Maarten.
+          Once enrolled, you can sign in to government and partner services with multi-factor authentication,
+          and control what personal information you share with each service.
+        </p>
+        <p>This guide covers your full journey as a citizen:</p>
+        <ul>
+          <li><strong>Apply online</strong> from home using the enrolment form</li>
+          <li><strong>Apply in person</strong> at a Public Service Center (PSC) counter</li>
+          <li><strong>Resume</strong> an incomplete application or <strong>re-upload documents</strong> when PSC asks</li>
+          <li><strong>Sign in</strong> with password, SMS, authenticator app, or passkey</li>
+          <li><strong>Recover access</strong> if you lose your phone or authenticator</li>
+          <li><strong>Use government portals</strong> (tax, business registration, etc.) through secure federation login</li>
+        </ul>
+
+        <div class="note">
+          PSC operators review every application against the Civil Registry before an eID is issued.
+          Processing times vary — keep your <strong>application reference</strong> safe until you receive confirmation.
+        </div>
+      </section>
+
+      <section id="before-start">
+        <h2>2. Before you apply</h2>
+
+        <h3>Who can apply online?</h3>
+        <ul>
+          <li>Residents aged <strong>12 and older</strong> with a valid National ID (NID) registered in the Civil Registry</li>
+          <li>Applicants under 12 must enrol <strong>in person at a PSC office</strong> with a parent or legal guardian</li>
+        </ul>
+
+        <h3>What you need for online enrolment</h3>
+        <table>
+          <tr><th>Item</th><th>Details</th></tr>
+          <tr><td>Device</td><td>Computer, tablet, or smartphone with a modern browser (Chrome, Safari, Edge)</td></tr>
+          <tr><td>Camera</td><td>For a <strong>live photo</strong> of your face (or upload a photo if camera is unavailable)</td></tr>
+          <tr><td>National ID</td><td>Your NID number and physical ID card to photograph (front and back)</td></tr>
+          <tr><td>Contact details</td><td>Valid email address and mobile number (used for status updates and MFA)</td></tr>
+          <tr><td>Civil Registry match</td><td>Name and date of birth should match official registry records</td></tr>
+          <tr><td>Time</td><td>About 10 minutes to complete the form</td></tr>
+        </table>
+
+        <h3>What you need for in-person enrolment</h3>
+        <ul>
+          <li>Valid physical identity documents (passport or national ID)</li>
+          <li>Parent or guardian present if the applicant is a minor</li>
+          <li>Visit a PSC office during operating hours — no online form required</li>
+        </ul>
+
+        <div class="tip">
+          Have your documents ready before starting. You can save progress and return later using your
+          <strong>application reference</strong> if you need to pause.
+        </div>
+      </section>
+
+      <section id="paths">
+        <h2>3. Two ways to get an eID</h2>
+
+        <div class="journey-map">
+          <div class="journey-map-item">
+            <strong>Path A — Online self-enrolment</strong>
+            <span>You complete the form at home → PSC reviews → eID issued if approved</span>
+          </div>
+          <div class="journey-map-item">
+            <strong>Path B — In-person at PSC</strong>
+            <span>You visit the counter → operator verifies identity → eID issued on the spot if eligible</span>
+          </div>
+        </div>
+
+        <table>
+          <tr><th></th><th>Online</th><th>At PSC counter</th></tr>
+          <tr><td>Best for</td><td>Adults who can upload documents and use a camera</td><td>Minors, complex cases, or if online application fails</td></tr>
+          <tr><td>Where</td><td><code>/enrol</code> on the public website</td><td>Any Public Service Center office</td></tr>
+          <tr><td>Processing</td><td>Review queue — wait for PSC decision</td><td>Usually same visit if verification passes</td></tr>
+          <tr><td>Reference number</td><td>Yes — save your session reference</td><td>Operator gives you eID number at completion</td></tr>
+        </table>
+      </section>
+
+      <section id="online-enrol">
+        <h2>4. Online self-enrolment</h2>
+        <p><strong>Start here:</strong> Public homepage → <span class="ui-label">Apply for eID</span> · URL: <code>/enrol</code></p>
+
+        <p>The enrolment wizard has <strong>5 steps</strong>. Use <span class="ui-label">Continue</span> to move forward and <span class="ui-label">Back</span> to revise earlier steps.</p>
+
+        <h3>Step 1 — Personal details</h3>
+        <ul>
+          <li>First name and last name — exactly as on Civil Registry records</li>
+          <li>Gender and nationality / citizenship</li>
+          <li>Date of birth — must match registry; under-12 applicants are blocked from online enrolment</li>
+        </ul>
+        <p>On Step 1 you can click <span class="ui-label">Resume application</span> if you already have a reference number (see Section 6).</p>
+
+        <h3>Step 2 — Contact information</h3>
+        <ul>
+          <li>Residential address</li>
+          <li>Email address — used for notifications</li>
+          <li>Mobile number — include country code; used for SMS verification at login</li>
+        </ul>
+
+        <h3>Step 3 — Identity documents</h3>
+        <ul>
+          <li><strong>National ID (NID)</strong> — your official identification number</li>
+          <li>Passport number and expiry (if applicable)</li>
+        </ul>
+
+        <h3>Step 4 — Live photo &amp; documents</h3>
+        <ul>
+          <li><strong>Live photo</strong> — capture your portrait using your device camera (look straight at the camera, good lighting)</li>
+          <li><strong>ID front</strong> — photograph or upload the front of your identity document (JPEG, PNG, WebP, or PDF; max 5 MB)</li>
+          <li><strong>ID back</strong> — upload if your document has a back side</li>
+        </ul>
+        <div class="warn">
+          Blurry, cropped, or unreadable documents may cause rejection or a request for re-submission.
+          Ensure all text on your ID is clearly visible.
+        </div>
+
+        <h3>Step 5 — Review &amp; consent</h3>
+        <ol class="steps">
+          <li>Review all entered details on the summary screen. Click any section heading to jump back and edit.</li>
+          <li>Read the privacy and consent terms.</li>
+          <li>Check the consent box to confirm you agree.</li>
+          <li>Click <span class="ui-label">Submit application</span>.</li>
+        </ol>
+
+        <div class="important">
+          After submission you receive an <strong>application reference</strong> (format <code>SXM-SESSION-…</code>).
+          Write it down or copy it — you need it to resume or re-submit documents.
+        </div>
+      </section>
+
+      <section id="after-submit">
+        <h2>5. After you submit</h2>
+
+        <h3>Success screen</h3>
+        <p>When submission succeeds, a confirmation dialog shows:</p>
+        <ul>
+          <li>Your <strong>application reference</strong> with a Copy button</li>
+          <li>A timeline of what happens next</li>
+        </ul>
+
+        <h3>What happens next (online applications)</h3>
+        <ol class="steps">
+          <li>A PSC officer reviews your documents and details.</li>
+          <li>Your information is checked against the Civil Registry.</li>
+          <li>You are notified by email or SMS when a decision is made.</li>
+          <li>If approved, you receive your eID number and can sign in with the credentials provided.</li>
+        </ol>
+
+        <div class="note">
+          You do <strong>not</strong> receive an active eID immediately after online submission.
+          Wait for PSC approval unless you enrolled in person at the counter.
+        </div>
+      </section>
+
+      <section id="resume">
+        <h2>6. Resume your application</h2>
+        <p>
+          If you closed the browser before finishing, or saved partway through, you can continue later
+          using your application reference.
+        </p>
+
+        <ol class="steps">
+          <li>Go to <code>/enrol</code>.</li>
+          <li>On Step 1 (Personal details), click <span class="ui-label">Resume application</span>.</li>
+          <li>Enter your application reference (for example, <code>SXM-SESSION-MARIA01</code>).</li>
+          <li>Click confirm — your saved fields and uploaded documents are restored.</li>
+          <li>Continue from the step where you left off, complete any missing items, and submit.</li>
+        </ol>
+
+        <div class="warn">
+          If the reference is not found, check for typos. References are case-sensitive.
+          Contact the PSC if you lost your reference and cannot recover it.
+        </div>
+      </section>
+
+      <section id="resubmit-docs">
+        <h2>7. Re-submit documents</h2>
+        <p>
+          Sometimes a PSC officer needs clearer photos or additional documents before they can approve your application.
+          Your application status becomes <span class="status-pill status-docs">Awaiting documents</span>.
+        </p>
+
+        <h3>How you know documents are requested</h3>
+        <ul>
+          <li>Email or SMS notification from the eID platform (when configured)</li>
+          <li>Instructions from the PSC officer, including your application reference</li>
+        </ul>
+
+        <h3>How to re-upload</h3>
+        <ol class="steps">
+          <li>Go to <code>/enrol</code> and click <span class="ui-label">Resume application</span>.</li>
+          <li>Enter your application reference.</li>
+          <li>A blue banner appears: <strong>Additional documents requested</strong>, with the officer's note.</li>
+          <li>You are taken directly to <strong>Step 4 — Live photo &amp; documents</strong>.</li>
+          <li>Replace or add the requested files (live photo, ID front, ID back as needed).</li>
+          <li>Click <span class="ui-label">Submit application</span>.</li>
+          <li>Enter the <strong>6-digit verification code</strong> sent to your registered mobile number.</li>
+          <li>Confirm submission — you see the success screen again.</li>
+        </ol>
+
+        <div class="tip">
+          Document re-submission requires SMS verification to protect your application from unauthorized changes.
+          In demo/training environments the code may appear on screen instead of a real SMS.
+        </div>
+
+        <h3>After you re-submit</h3>
+        <p>
+          Your status changes to <span class="status-pill status-received">Documents received</span> in the PSC queue.
+          An officer will review the new files and approve or reject your application. You do not need to take further action unless contacted again.
+        </p>
+      </section>
+
+      <section id="psc-counter">
+        <h2>8. In-person enrolment at PSC</h2>
+        <p>
+          If you cannot apply online, are under 12, or prefer face-to-face service, visit a
+          <strong>Public Service Center (PSC)</strong> office.
+        </p>
+
+        <h3>What to expect</h3>
+        <ol class="steps">
+          <li>Bring valid identity documents and (for minors) your parent or legal guardian.</li>
+          <li>Tell the counter officer you need to enrol for an eID.</li>
+          <li>The operator verifies your identity against the Civil Registry, may scan your ePassport chip, and captures a live photo.</li>
+          <li>If verification passes, your eID number and UIN are issued during the visit.</li>
+          <li>You receive your login details and set up MFA on first sign-in.</li>
+        </ol>
+
+        <h3>Online vs counter — key difference</h3>
+        <table>
+          <tr><th>Online application</th><th>Counter enrolment</th></tr>
+          <tr><td>Reference number first; eID later after review</td><td>eID issued immediately when approved</td></tr>
+          <tr><td>You upload documents yourself</td><td>Operator captures documents and photo</td></tr>
+          <tr><td>May need document re-submission by email/SMS instruction</td><td>Issues resolved at the counter in the same visit</td></tr>
+        </table>
+
+        <div class="note">
+          For operator procedures, see the
+          <a href="EID_USER_MANUAL_PSC_ADMIN.html">PSC Operator User Manual</a> (staff use only).
+        </div>
+      </section>
+
+      <section id="outcomes">
+        <h2>9. Application outcomes</h2>
+        <p>After PSC review, your online application receives one of these outcomes:</p>
+
+        <table>
+          <tr><th>Outcome</th><th>What it means for you</th><th>What to do</th></tr>
+          <tr>
+            <td><span class="status-pill status-approved">Approved</span></td>
+            <td>Your eID is issued; account is active</td>
+            <td>Sign in with your eID number or email and the password provided. Set up MFA.</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-docs">Awaiting documents</span></td>
+            <td>Officer needs better or additional files</td>
+            <td>Re-submit via <code>/enrol</code> with your reference (Section 7)</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-pending">Under review</span></td>
+            <td>Application in the PSC queue</td>
+            <td>Wait for notification; do not submit duplicate applications</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill status-rejected">Rejected</span></td>
+            <td>Application declined (ineligible, fraud concern, poor document quality)</td>
+            <td>Contact PSC for explanation; you may need to re-apply in person with corrected documents</td>
+          </tr>
+        </table>
+
+        <h3>Escalation and fraud review</h3>
+        <p>
+          Some applications are escalated to a supervisor or fraud review team. This does not mean you did something wrong —
+          it is a standard control when data mismatches or identity concerns arise. Processing may take longer.
+          You will be contacted if more information is needed.
+        </p>
+      </section>
+
+      <section id="sign-in">
+        <h2>10. Sign in to your eID</h2>
+        <p><strong>URL:</strong> <code>/login</code></p>
+
+        <h3>Standard sign-in (password)</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Sign in</span> on the homepage.</li>
+          <li>Enter your <strong>eID number</strong> (format <code>ID-SXM-…</code>) or <strong>email address</strong>.</li>
+          <li>Enter your password and click continue.</li>
+          <li>Complete the second verification step (see below).</li>
+          <li>You arrive at your <strong>Citizen Dashboard</strong> at <code>/citizen/dashboard</code>.</li>
+        </ol>
+
+        <h3>Second verification (MFA)</h3>
+        <p>Every sign-in requires a second step after your password:</p>
+        <table>
+          <tr><th>Method</th><th>How it works</th></tr>
+          <tr><td>SMS code</td><td>6-digit code sent to your registered mobile number</td></tr>
+          <tr><td>Authenticator app</td><td>6-digit code from Google Authenticator, Microsoft Authenticator, or similar (if you enabled TOTP)</td></tr>
+        </table>
+        <p>If both SMS and authenticator app are available, choose the tab for your preferred method on the MFA screen.</p>
+
+        <h3>Sign in with passkey (optional)</h3>
+        <ol class="steps">
+          <li>On the login page, switch to the <span class="ui-label">Passkey</span> tab.</li>
+          <li>Enter your eID number.</li>
+          <li>Follow your device prompt (fingerprint, Face ID, Windows Hello, or security key).</li>
+        </ol>
+        <div class="note">Passkeys must be registered first under <span class="ui-label">Security settings</span> (Section 12).</div>
+
+        <h3>Sign out</h3>
+        <p>Use <span class="ui-label">Sign Out</span> from the citizen navigation menu when you finish your session, especially on shared computers.</p>
+      </section>
+
+      <section id="dashboard">
+        <h2>11. Dashboard &amp; profile</h2>
+
+        <h3>Citizen dashboard</h3>
+        <p><strong>URL:</strong> <code>/citizen/dashboard</code> (after sign-in)</p>
+        <ul>
+          <li>Welcome message with your name, eID number, and account status</li>
+          <li>Identity summary — National ID, date of birth</li>
+          <li>Contact summary — email and masked mobile number</li>
+          <li>Security summary — MFA method and passkey status</li>
+          <li>Quick links to Profile and Security settings</li>
+        </ul>
+
+        <h3>Profile page</h3>
+        <p><strong>URL:</strong> <code>/citizen/profile</code></p>
+        <ul>
+          <li>View your UIN, eID number, National ID, email, mobile, and account status</li>
+          <li>Core identity fields are <strong>read-only</strong> — contact PSC to correct registry data</li>
+          <li>Change password (current password + new password required)</li>
+          <li>Update email or mobile with OTP confirmation</li>
+        </ul>
+
+        <div class="warn">
+          After MFA recovery (Section 14), a banner on your profile reminds you to set up new MFA before your next login.
+        </div>
+      </section>
+
+      <section id="security">
+        <h2>12. Security settings</h2>
+        <p><strong>URL:</strong> <code>/citizen/security</code></p>
+
+        <h3>SMS verification</h3>
+        <p>Always active on your registered mobile — used at every sign-in unless you use a passkey.</p>
+
+        <h3>Authenticator app (TOTP) — recommended</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Set up authenticator app</span>.</li>
+          <li>Scan the QR code with your authenticator app.</li>
+          <li>Enter the 6-digit code to confirm.</li>
+          <li>At next login you can choose SMS or authenticator app.</li>
+        </ol>
+
+        <h3>Passkey (optional)</h3>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Register passkey</span>.</li>
+          <li>Complete your browser or device security prompt.</li>
+          <li>Use passkey sign-in on supported devices for faster, passwordless access.</li>
+        </ol>
+
+        <div class="tip">
+          Enable an authenticator app even if you rely on SMS. It protects you if you change phone numbers or travel abroad.
+        </div>
+      </section>
+
+      <section id="gov-services">
+        <h2>13. Government services login</h2>
+        <p>
+          Many government portals (for example, tax services or business registration) use your eID to sign in
+          securely. You do not create a separate password on each site.
+        </p>
+
+        <h3>How federation login works</h3>
+        <ol class="steps">
+          <li>Open a government service website (for example, Tax Portal or COCI).</li>
+          <li>Click <span class="ui-label">Sign in with eID</span> or similar.</li>
+          <li>You are redirected to the official eID login page.</li>
+          <li>Sign in with your eID credentials and complete MFA.</li>
+          <li>You are returned to the service — now logged in.</li>
+        </ol>
+
+        <div class="important">
+          <strong>Privacy:</strong> Each service receives only the identity information it is authorised to see.
+          You may be asked to consent before data is shared. The eID platform uses privacy-preserving tokens where configured.
+        </div>
+
+        <h3>Developer sandbox (optional)</h3>
+        <p>
+          Integrators test OIDC connections at <code>/sandbox</code>. Citizens normally use real government portals, not the sandbox.
+        </p>
+      </section>
+
+      <section id="recovery">
+        <h2>14. Lost access recovery</h2>
+        <p>
+          Use this if you forgot your MFA method, lost your phone, or cannot receive SMS codes —
+          but you still know your password and identity details.
+        </p>
+        <p><strong>URL:</strong> <code>/recover</code> (linked from the login page as <span class="ui-label">Lost access?</span>)</p>
+
+        <h3>Step 1 — Verify identity</h3>
+        <ol class="steps">
+          <li>Enter your eID number or email and password.</li>
+          <li>Enter your date of birth exactly as registered.</li>
+          <li>Enter your <strong>mother's maiden name</strong> as recorded in the Civil Registry.</li>
+          <li>Click <span class="ui-label">Verify identity</span>.</li>
+        </ol>
+
+        <h3>Step 2 — Confirm with SMS</h3>
+        <ol class="steps">
+          <li>Enter the 6-digit code sent to your registered mobile.</li>
+          <li>Click <span class="ui-label">Confirm recovery</span>.</li>
+          <li>Your old authenticator app and passkey factors are reset.</li>
+          <li>You are signed in and redirected to your profile.</li>
+        </ol>
+
+        <h3>After recovery</h3>
+        <ol class="steps">
+          <li>Go to <span class="ui-label">Security settings</span> immediately.</li>
+          <li>Set up a new authenticator app and/or passkey.</li>
+          <li>Verify you can sign in again with the new MFA setup.</li>
+        </ol>
+
+        <div class="warn">
+          If identity verification fails (for example, wrong mother's maiden name), you cannot recover online.
+          Visit your nearest PSC office with valid ID for <strong>assisted recovery</strong>.
+        </div>
+      </section>
+
+      <section id="special-cases">
+        <h2>15. Special cases</h2>
+
+        <h3>Minors (under 12)</h3>
+        <p>
+          Online enrolment is blocked with the message that applicants under 12 must enrol in person at a PSC office
+          with a parent or legal guardian present.
+        </p>
+
+        <h3>Deceased persons</h3>
+        <p>
+          Accounts marked deceased in the Civil Registry cannot sign in. Login is blocked with an appropriate message.
+          Contact the registry office if you believe this is an error.
+        </p>
+
+        <h3>Wrong password lockout</h3>
+        <p>
+          After several failed password attempts, your account is temporarily locked for security.
+          Wait for the lockout period to expire, or contact support if you forgot your password entirely.
+        </p>
+
+        <h3>Name or registry mismatches</h3>
+        <p>
+          If your online application name does not exactly match the Civil Registry (for example, spelling of a family name),
+          PSC may request documents, escalate to a supervisor, or reject the application.
+          Ensure your enrolment details match official records, or visit PSC in person.
+        </p>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>16. Troubleshooting</h2>
+        <table>
+          <tr><th>Problem</th><th>Likely cause</th><th>What to do</th></tr>
+          <tr>
+            <td>Applicants under 12 must enrol in person</td>
+            <td>Date of birth indicates a minor</td>
+            <td>Visit PSC with parent/guardian (Section 8)</td>
+          </tr>
+          <tr>
+            <td>Could not find that application reference</td>
+            <td>Typo in reference or expired session</td>
+            <td>Re-check reference; contact PSC if lost</td>
+          </tr>
+          <tr>
+            <td>Please capture a live photo</td>
+            <td>Step 4 incomplete</td>
+            <td>Allow camera permission or upload a photo file</td>
+          </tr>
+          <tr>
+            <td>Camera permission denied</td>
+            <td>Browser blocked camera</td>
+            <td>Enable camera in browser settings; use HTTPS URL</td>
+          </tr>
+          <tr>
+            <td>Submission failed</td>
+            <td>Network or validation error</td>
+            <td>Check all required fields; try again</td>
+          </tr>
+          <tr>
+            <td>Invalid verification code (document re-submit)</td>
+            <td>Wrong SMS OTP</td>
+            <td>Request a new code; enter within expiry time</td>
+          </tr>
+          <tr>
+            <td>Invalid code at login</td>
+            <td>Wrong MFA code</td>
+            <td>Wait for new TOTP code (30 s) or new SMS; re-enter carefully</td>
+          </tr>
+          <tr>
+            <td>Login blocked — deceased</td>
+            <td>Registry status</td>
+            <td>Contact Civil Registry — cannot self-resolve online</td>
+          </tr>
+          <tr>
+            <td>Passkeys not supported</td>
+            <td>Old browser</td>
+            <td>Use Chrome 108+, Safari 16+, or Edge 108+; or use password login</td>
+          </tr>
+        </table>
+
+        <h3>When to visit PSC in person</h3>
+        <ul>
+          <li>You lost your application reference and need to track an application</li>
+          <li>Online recovery failed identity verification</li>
+          <li>Your application was rejected and you need to understand why</li>
+          <li>You are enrolling a child under 12</li>
+          <li>Registry data (name, DOB, NID) needs correction before enrolment can succeed</li>
+        </ul>
+      </section>
+
+      <section id="glossary">
+        <h2>17. Glossary</h2>
+        <table>
+          <tr><th>Term</th><th>Meaning</th></tr>
+          <tr><td>eID</td><td>Your electronic identity number (<code>ID-SXM-…</code>) used to sign in</td></tr>
+          <tr><td>UIN</td><td>Unique Identification Number in the Civil Registry</td></tr>
+          <tr><td>NID / National ID</td><td>National identification number on your physical ID card</td></tr>
+          <tr><td>Application reference</td><td>Session code (<code>SXM-SESSION-…</code>) for your online enrolment application</td></tr>
+          <tr><td>PSC</td><td>Public Service Center — government office that processes eID applications</td></tr>
+          <tr><td>Civil Registry</td><td>Official government database of citizen identity records</td></tr>
+          <tr><td>Live photo</td><td>Portrait captured by camera during enrolment</td></tr>
+          <tr><td>MFA</td><td>Multi-factor authentication — SMS or app code after password</td></tr>
+          <tr><td>TOTP</td><td>Authenticator app one-time codes</td></tr>
+          <tr><td>Passkey</td><td>Passwordless sign-in using biometrics or device PIN (FIDO2)</td></tr>
+          <tr><td>OIDC / Federation login</td><td>Signing into another government site using your eID</td></tr>
+          <tr><td>Awaiting documents</td><td>PSC status — you must re-upload files (Section 7)</td></tr>
+        </table>
+      </section>
+
+      <section id="quick-ref">
+        <h2>18. Quick reference</h2>
+
+        <h3>Key pages</h3>
+        <table>
+          <tr><th>Task</th><th>URL</th></tr>
+          <tr><td>Apply for eID online</td><td><code>/enrol</code></td></tr>
+          <tr><td>Resume or re-submit documents</td><td><code>/enrol</code> → Resume application</td></tr>
+          <tr><td>Sign in</td><td><code>/login</code></td></tr>
+          <tr><td>Citizen dashboard</td><td><code>/citizen/dashboard</code></td></tr>
+          <tr><td>Profile</td><td><code>/citizen/profile</code></td></tr>
+          <tr><td>Security &amp; MFA</td><td><code>/citizen/security</code></td></tr>
+          <tr><td>Lost access recovery</td><td><code>/recover</code></td></tr>
+        </table>
+
+        <h3>Enrolment journey at a glance</h3>
+        <div class="card">
+          <strong>Online path</strong>
+          <ol style="margin:.5rem 0 0;">
+            <li>Complete 5-step form at <code>/enrol</code></li>
+            <li>Save application reference</li>
+            <li>Wait for PSC review</li>
+            <li>Re-submit documents if asked (Section 7)</li>
+            <li>Receive eID when approved → sign in and set up MFA</li>
+          </ol>
+        </div>
+        <div class="card">
+          <strong>PSC counter path</strong>
+          <ol style="margin:.5rem 0 0;">
+            <li>Visit PSC with ID documents</li>
+            <li>Operator verifies and captures photo</li>
+            <li>Receive eID same visit if approved</li>
+            <li>First sign-in → set up MFA</li>
+          </ol>
+        </div>
+
+        <h3>Citizen checklist</h3>
+        <div class="card">
+          <label><input type="checkbox"> I have my National ID and contact details ready</label><br>
+          <label><input type="checkbox"> I saved my application reference after online submit</label><br>
+          <label><input type="checkbox"> I know how to re-submit if PSC requests documents</label><br>
+          <label><input type="checkbox"> MFA (SMS + authenticator app) is set up on my account</label><br>
+          <label><input type="checkbox"> I sign out on shared devices</label>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · Citizen User Manual v1.0 · March 2026<br>
+    See also:
+    <a href="EID_USER_MANUAL_PSC_ADMIN.html">PSC Operator Manual</a> ·
+    <a href="EID_USER_MANUAL_SYSTEM_ADMIN.html">System Administrator Manual</a> ·
+    <a href="../user-journey-testing/01-citizen-journey.html">Citizen Test Guide</a><br>
+    For enrolment questions visit your nearest Public Service Center.
+  </footer>
+
+  <script>
+    const sections = document.querySelectorAll('main section[id]');
+    const tocLinks = document.querySelectorAll('.toc-nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const active = document.querySelector('.toc-nav a[href="#' + entry.target.id + '"]');
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>

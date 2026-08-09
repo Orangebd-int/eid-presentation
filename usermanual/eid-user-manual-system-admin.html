@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>System Administrator User Manual — Sint Maarten eID Platform</title>
+  <style>
+    :root {
+      --navy: #0b2e4e;
+      --navy-light: #134a75;
+      --green: #1a7f4c;
+      --green-bg: #eef8f1;
+      --red: #b42318;
+      --red-bg: #fef3f2;
+      --amber: #b54708;
+      --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb;
+      --bg: #f4f6f8;
+      --card: #fff;
+      --muted: #5c6773;
+      --border: #dde2ea;
+      --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6;
+    }
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { left: 1rem; top: 1rem; z-index: 999; background: #fff; padding: .5rem 1rem; }
+
+    .doc-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, var(--navy-light) 100%);
+      color: #fff; padding: 2.5rem 2rem 2rem;
+    }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge {
+      display: inline-block; background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25); border-radius: 999px;
+      padding: .25rem .75rem; font-size: .75rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem;
+    }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.2; }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 720px; font-size: 1.05rem; }
+    .doc-meta {
+      display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem;
+      font-size: .875rem; opacity: .85;
+    }
+
+    .doc-layout {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: var(--sidebar-w) 1fr; gap: 0;
+      min-height: calc(100vh - 200px);
+    }
+    @media (max-width: 900px) {
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+
+    .doc-sidebar {
+      position: sticky; top: 0; align-self: start;
+      height: 100vh; overflow-y: auto;
+      background: #fff; border-right: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+    .toc-title {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem;
+    }
+    .toc-nav a {
+      display: block; padding: .4rem 1.25rem .4rem 1.5rem;
+      color: var(--navy); text-decoration: none; font-size: .875rem;
+      border-left: 3px solid transparent;
+    }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .toc-nav a.active { border-left-color: var(--navy); background: var(--blue-bg); font-weight: 600; }
+    .toc-nav .toc-part {
+      padding: .75rem 1.25rem .25rem; font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    }
+
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 {
+      color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem;
+      padding-bottom: .5rem; border-bottom: 2px solid var(--border);
+    }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    h4 { font-size: .95rem; margin: 1rem 0 .5rem; color: #333; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    a:hover { text-decoration: underline; }
+
+    .card {
+      background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      border: 1px solid var(--border);
+    }
+    .tip, .note, .warn, .important {
+      padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem;
+    }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+
+    .steps { counter-reset: step; list-style: none; padding-left: 0; }
+    .steps > li {
+      counter-increment: step; position: relative;
+      padding-left: 2.75rem; margin-bottom: 1rem;
+    }
+    .steps > li::before {
+      content: counter(step); position: absolute; left: 0; top: .1rem;
+      width: 1.75rem; height: 1.75rem; border-radius: 50%;
+      background: var(--navy); color: #fff; font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    tr:nth-child(even) td { background: #fafbfc; }
+
+    .ui-label {
+      display: inline-block; background: #eef1f5; border: 1px solid #c8d0da;
+      border-radius: 6px; padding: .1rem .45rem; font-size: .85em; font-weight: 600;
+    }
+    .status-pill {
+      display: inline-block; border-radius: 999px; padding: .15rem .55rem;
+      font-size: .75rem; font-weight: 600;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-approved { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-active { background: #d1fae5; color: #065f46; }
+    .status-inactive { background: #f1f5f9; color: #475569; }
+
+    .nav-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+    .nav-map-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      padding: .85rem 1rem;
+    }
+    .nav-map-item strong { display: block; color: var(--navy); margin-bottom: .25rem; }
+    .nav-map-item span { font-size: .85rem; color: var(--muted); }
+
+    footer {
+      text-align: center; padding: 2rem; color: var(--muted);
+      font-size: .85rem; border-top: 1px solid var(--border); background: #fff;
+    }
+
+    @media print {
+      .doc-sidebar { display: none; }
+      .doc-layout { grid-template-columns: 1fr; }
+      .doc-main { padding: 0; }
+      section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Official User Manual</div>
+      <h1>System Administration Portal — Complete User Guide</h1>
+      <p class="subtitle">
+        Step-by-step instructions for platform administrators who manage staff accounts,
+        review relying party (RP) integration requests, monitor audit activity, and oversee
+        the eID platform. No technical background required for day-to-day portal tasks.
+      </p>
+      <div class="doc-meta">
+        <span><strong>Audience:</strong> System administrators</span>
+        <span><strong>Portal:</strong> eID System Administration Portal</span>
+        <span><strong>Version:</strong> 1.0 · March 2026</span>
+        <span><strong>Related:</strong>
+          <a href="EID_USER_MANUAL_PSC_ADMIN.html" style="color:#fff;">PSC Operator Manual</a> ·
+          <a href="EID_USER_MANUAL_CITIZEN.html" style="color:#fff;">Citizen Manual</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar" aria-label="Table of contents">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <div class="toc-part">Getting started</div>
+        <a href="#intro">1. Introduction</a>
+        <a href="#login">2. Sign in &amp; sign out</a>
+        <a href="#navigation">3. Portal navigation</a>
+        <a href="#dashboard">4. Dashboard</a>
+
+        <div class="toc-part">Platform management</div>
+        <a href="#users">5. User directory</a>
+        <a href="#psc-onboard">6. PSC operator onboarding</a>
+        <a href="#rp-apps">7. RP applications</a>
+
+        <div class="toc-part">Oversight</div>
+        <a href="#audit">8. Audit logs</a>
+        <a href="#oversight">9. Enrolment oversight</a>
+        <a href="#profile">10. Profile &amp; security</a>
+
+        <div class="toc-part">Reference</div>
+        <a href="#roles">11. Roles &amp; responsibilities</a>
+        <a href="#troubleshooting">12. Troubleshooting</a>
+        <a href="#glossary">13. Glossary</a>
+        <a href="#quick-ref">14. Quick reference</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <section id="intro">
+        <h2>1. Introduction</h2>
+        <p>
+          As a <strong>System Administrator</strong>, you manage the eID platform from the
+          <strong>System Administration Portal</strong>. You do not process citizen enrolments at the counter —
+          that is the job of PSC operators — but you control who can access the platform and how external
+          services connect to it.
+        </p>
+        <ul>
+          <li>Create and onboard new PSC operators with one-time login credentials</li>
+          <li>Activate or deactivate staff accounts across all internal roles</li>
+          <li>Browse enrolled citizen accounts (read-only directory view)</li>
+          <li>Review, approve, or reject relying party (RP) OIDC integration applications</li>
+          <li>Provision sandbox OAuth clients when an RP application is approved</li>
+          <li>Monitor platform-wide audit logs and security events</li>
+          <li>Oversee enrolment queue volume (read-only link to PSC portal)</li>
+        </ul>
+
+        <div class="important">
+          <strong>Your responsibility:</strong> Every user lifecycle change and RP approval is recorded in the
+          audit trail. Share one-time passwords securely. Never approve an RP application without verifying
+          redirect URIs and business justification.
+        </div>
+
+        <h3>What you need before starting</h3>
+        <table>
+          <tr><th>Item</th><th>Details</th></tr>
+          <tr><td>Web browser</td><td>Chrome, Edge, or Safari (latest version recommended)</td></tr>
+          <tr><td>Your login</td><td>Your work <strong>eID number</strong> or <strong>work email</strong></td></tr>
+          <tr><td>Password</td><td>Provided when your administrator account was created</td></tr>
+          <tr><td>Second factor (MFA)</td><td>SMS code or authenticator app — set up under <span class="ui-label">Security &amp; MFA</span></td></tr>
+          <tr><td>Portal URL</td><td><code>/admin</code> after signing in (for example, <code>https://eid.example.gov/admin</code>)</td></tr>
+        </table>
+
+        <div class="note">
+          <strong>Admin vs PSC:</strong> After login, administrators land on <code>/admin</code>.
+          PSC operators land on <code>/psc</code>. You can open the PSC portal from the admin sidebar for
+          oversight, but day-to-day enrolment processing should be done by PSC staff.
+        </div>
+      </section>
+
+      <section id="login">
+        <h2>2. Sign in &amp; sign out</h2>
+
+        <h3>How to sign in</h3>
+        <ol class="steps">
+          <li>Open the eID website and click <span class="ui-label">Sign in</span>.</li>
+          <li>Enter your <strong>work email address</strong> or <strong>eID number</strong> (format <code>ID-SXM-…</code>).</li>
+          <li>Enter your password and click continue.</li>
+          <li>Complete the second verification step (SMS code or authenticator app).</li>
+          <li>After successful login, you are redirected to the <strong>System Administration Portal</strong> dashboard at <code>/admin</code>.</li>
+        </ol>
+
+        <div class="warn">
+          <strong>Staff login rule:</strong> Sign in with your <strong>eID number</strong> or
+          <strong>email address</strong>. Username-only login (for example, <code>admin</code>) is not accepted for staff accounts.
+        </div>
+
+        <h3>How to sign out</h3>
+        <ol class="steps">
+          <li>Look at the top-right corner of any admin page.</li>
+          <li>Click <span class="ui-label">Sign Out</span>.</li>
+          <li>Always sign out when leaving your workstation unattended.</li>
+        </ol>
+
+        <h3>Switching to the PSC portal or public site</h3>
+        <ul>
+          <li><span class="ui-label">PSC Portal</span> (footer of left menu) — opens the PSC operator portal without signing you out.</li>
+          <li><span class="ui-label">Exit to Public Portal</span> — returns to the citizen homepage without signing you out.</li>
+        </ul>
+      </section>
+
+      <section id="navigation">
+        <h2>3. Portal navigation</h2>
+        <p>
+          The admin portal has a <strong>left sidebar menu</strong> on every page. The page title at the top
+          shows your current location.
+        </p>
+
+        <div class="nav-map">
+          <div class="nav-map-item">
+            <strong>Dashboard</strong>
+            <span>Overview — user counts, pending enrolments, audit totals, quick actions</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>RP Applications</strong>
+            <span>Review relying party OIDC onboarding requests; approve or reject</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>System Users</strong>
+            <span>User directory — staff groups, PSC onboarding, activate/deactivate</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Audit Logs</strong>
+            <span>Search and filter platform security and activity events</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Profile</strong>
+            <span>View your account details and change password</span>
+          </div>
+          <div class="nav-map-item">
+            <strong>Security &amp; MFA</strong>
+            <span>Authenticator app, passkey, and account protection settings</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard">
+        <h2>4. Dashboard</h2>
+        <p><strong>Menu path:</strong> <span class="ui-label">Dashboard</span> · URL: <code>/admin</code></p>
+
+        <p>The dashboard is your home page. It shows:</p>
+        <ul>
+          <li><strong>Welcome banner</strong> — quick links to manage users and set up MFA if needed</li>
+          <li><strong>System users</strong> — total count of internal staff accounts</li>
+          <li><strong>Pending enrolments</strong> — applications in the PSC review queue (platform-wide)</li>
+          <li><strong>Audit events</strong> — total recorded platform activity</li>
+          <li><strong>Account security</strong> — whether MFA is enabled on your admin account</li>
+        </ul>
+
+        <h3>Quick actions</h3>
+        <p>From the dashboard card you can jump directly to:</p>
+        <ul>
+          <li><span class="ui-label">System users</span> — user directory</li>
+          <li><span class="ui-label">RP applications</span> — integration request queue</li>
+          <li><span class="ui-label">Audit logs</span> — compliance search</li>
+          <li><span class="ui-label">Enrolment queue</span> — PSC oversight (read-only view of pending applications)</li>
+          <li><span class="ui-label">Admin profile</span> and <span class="ui-label">Security settings</span></li>
+          <li><span class="ui-label">PSC portal</span> — switch to operator view</li>
+        </ul>
+
+        <h3>Recent audit activity</h3>
+        <p>
+          The dashboard shows the five most recent audit events. Click <span class="ui-label">View all</span>
+          to open the full audit log page with search and filters.
+        </p>
+
+        <div class="tip">
+          If your account security shows <strong>Setup recommended</strong>, go to
+          <span class="ui-label">Security &amp; MFA</span> and enable an authenticator app as soon as possible.
+        </div>
+      </section>
+
+      <section id="users">
+        <h2>5. User directory</h2>
+        <p><strong>Menu path:</strong> <span class="ui-label">System Users</span> · URL: <code>/admin/users</code></p>
+
+        <p>
+          The user directory lists everyone on the platform, grouped by role. Use the
+          <strong>filter cards</strong> at the top to switch between groups.
+        </p>
+
+        <h3>Filter groups</h3>
+        <table>
+          <tr><th>Card</th><th>Who appears</th><th>What you can do</th></tr>
+          <tr>
+            <td><span class="ui-label">All staff</span></td>
+            <td>Admin, PSC Admin, Moderator, Developer accounts</td>
+            <td>View all internal accounts; activate/deactivate staff</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">PSC Admin</span></td>
+            <td>Civil registry operators</td>
+            <td>Create new operators; activate/deactivate</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Admin</span></td>
+            <td>System administrators</td>
+            <td>View and manage status</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Moderator</span></td>
+            <td>Moderation staff</td>
+            <td>View and manage status</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Developer</span></td>
+            <td>Integration / RP staff</td>
+            <td>View and manage status</td>
+          </tr>
+          <tr>
+            <td><span class="ui-label">Citizens</span></td>
+            <td>Enrolled citizen accounts</td>
+            <td><strong>Read-only</strong> — no activate/deactivate in this view</td>
+          </tr>
+        </table>
+
+        <p>Click any card to filter the table below. The active card shows a <strong>Selected</strong> badge and displays how many accounts are in that group.</p>
+
+        <h3>Staff table columns</h3>
+        <table>
+          <tr><th>Column</th><th>Meaning</th></tr>
+          <tr><td>Username</td><td>Internal login username (staff cannot sign in with username alone)</td></tr>
+          <tr><td>Email</td><td>Work email used for login</td></tr>
+          <tr><td>eID number</td><td>Staff eID identifier (format <code>ID-SXM-…</code>)</td></tr>
+          <tr><td>Role</td><td>PscAdmin, Admin, Moderator, or Developer</td></tr>
+          <tr><td>Status</td><td><span class="status-pill status-active">Active</span> or <span class="status-pill status-inactive">Inactive</span></td></tr>
+          <tr><td>Staff access</td><td>Toggle to activate or deactivate the account</td></tr>
+        </table>
+
+        <h3>Activate or deactivate a staff account</h3>
+        <ol class="steps">
+          <li>Open <span class="ui-label">System Users</span> and select the correct group card.</li>
+          <li>Find the user in the table.</li>
+          <li>Use the <strong>Staff access</strong> toggle to set the account to Active or Inactive.</li>
+          <li>Wait for the success message confirming the change.</li>
+          <li>Click <span class="ui-label">Refresh</span> if the list does not update immediately.</li>
+        </ol>
+
+        <div class="warn">
+          A deactivated user cannot sign in. Use this when an operator leaves the organisation or their access must be suspended immediately.
+        </div>
+      </section>
+
+      <section id="psc-onboard">
+        <h2>6. PSC operator onboarding</h2>
+        <p>
+          Only System Administrators can create new PSC operator accounts. This is done from
+          <code>/admin/users</code> with the <span class="ui-label">PSC Admin</span> filter selected.
+        </p>
+
+        <h3>Create a new PSC operator</h3>
+        <ol class="steps">
+          <li>Open <span class="ui-label">System Users</span> and click the <span class="ui-label">PSC Admin</span> filter card.</li>
+          <li>Click <span class="ui-label">Create PSC Admin</span> (banner or section header).</li>
+          <li>Complete the form:
+            <ul>
+              <li><strong>Work email</strong> — required; used for login</li>
+              <li><strong>Mobile number</strong> — required; used for SMS MFA</li>
+              <li><strong>National ID</strong> — required for registry linkage</li>
+              <li><strong>BSN</strong> — exactly 6 digits</li>
+              <li><strong>Date of birth</strong> — required to generate the staff eID number</li>
+              <li><strong>Username</strong> — optional; defaults from email if left blank</li>
+              <li><strong>Display name</strong> — optional; for audit notes only</li>
+            </ul>
+          </li>
+          <li>Click <span class="ui-label">Create PSC Admin</span>.</li>
+          <li>A <strong>credentials banner</strong> appears with one-time login details.</li>
+        </ol>
+
+        <h3>Share credentials securely</h3>
+        <p>The banner shows (copy each field with the Copy button):</p>
+        <ul>
+          <li><strong>Login email</strong></li>
+          <li><strong>Login eID</strong> — newly generated staff eID number</li>
+          <li><strong>Temporary password</strong> — shown <em>once only</em></li>
+          <li><strong>Username</strong></li>
+        </ul>
+
+        <div class="important">
+          The temporary password cannot be retrieved again after you dismiss the banner.
+          Share credentials through a secure channel (in person or encrypted message).
+          Instruct the new operator to sign in with <strong>email or eID</strong>, not username alone.
+        </div>
+
+        <h3>Verify the new operator</h3>
+        <ol class="steps">
+          <li>Confirm the new user appears in the PSC Admin group with status <span class="status-pill status-active">Active</span>.</li>
+          <li>Ask the operator to sign in and complete SMS MFA.</li>
+          <li>Confirm they land on the PSC Operator Portal at <code>/psc</code>.</li>
+          <li>Check audit logs for event <code>SYSTEM_USER_CREATED</code>.</li>
+        </ol>
+      </section>
+
+      <section id="rp-apps">
+        <h2>7. RP applications (relying party onboarding)</h2>
+        <p><strong>Menu path:</strong> <span class="ui-label">RP Applications</span> · URL: <code>/admin/rp-applications</code></p>
+
+        <p>
+          Government and partner services submit OIDC integration requests through the public form at
+          <code>/register-rp</code>. You review each request here before a sandbox OAuth client is provisioned.
+        </p>
+
+        <h3>Filter cards</h3>
+        <table>
+          <tr><th>Card</th><th>Shows</th></tr>
+          <tr><td><span class="ui-label">Pending review</span></td><td>Applications with status <span class="status-pill status-pending">Submitted</span> — need your decision</td></tr>
+          <tr><td><span class="ui-label">Approved</span></td><td>Approved or production-active applications with provisioned clients</td></tr>
+          <tr><td><span class="ui-label">Rejected</span></td><td>Declined applications</td></tr>
+          <tr><td><span class="ui-label">All applications</span></td><td>Complete history</td></tr>
+        </table>
+
+        <p>Click a card to filter the queue on the left. The selected card shows how many applications match.</p>
+
+        <h3>Review an application</h3>
+        <ol class="steps">
+          <li>Select the <span class="ui-label">Pending review</span> card (default when work is waiting).</li>
+          <li>Click an application in the <strong>Application queue</strong> list on the left.</li>
+          <li>Review the detail panel on the right:
+            <ul>
+              <li>Organization and technical contact details</li>
+              <li>Integration path (WSO2 broker or direct OIDC)</li>
+              <li>Requested OAuth scopes and identity claims</li>
+              <li>Redirect URIs — verify each URL is correct and HTTPS in production</li>
+              <li>Business justification</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h3>Approve and provision a sandbox client</h3>
+        <ol class="steps">
+          <li>On a <span class="status-pill status-pending">Submitted</span> application, scroll to <strong>Approve &amp; provision sandbox</strong>.</li>
+          <li>Adjust <strong>Approved scopes</strong> if needed (default: <code>openid profile email</code>).</li>
+          <li>Select <strong>Approved claims</strong> — <code>sub</code> is always required and locked.</li>
+          <li>Add optional review notes.</li>
+          <li>Click <span class="ui-label">Approve &amp; provision client</span>.</li>
+          <li>Copy the credentials banner immediately:
+            <ul>
+              <li>Application reference</li>
+              <li>Client ID</li>
+              <li>Client secret — <strong>shown once only</strong></li>
+              <li>OIDC discovery URL</li>
+            </ul>
+          </li>
+          <li>Share credentials securely with the RP technical contact.</li>
+        </ol>
+
+        <h3>Reject an application</h3>
+        <ol class="steps">
+          <li>Scroll to <strong>Reject application</strong>.</li>
+          <li>Enter a clear <strong>rejection reason</strong> (required).</li>
+          <li>Click <span class="ui-label">Reject application</span>.</li>
+        </ol>
+
+        <div class="warn">
+          Do not approve redirect URIs you do not recognise. Do not share client secrets over unsecured email.
+          Rejected applications remain in the <span class="ui-label">Rejected</span> filter for audit purposes.
+        </div>
+      </section>
+
+      <section id="audit">
+        <h2>8. Audit logs</h2>
+        <p><strong>Menu path:</strong> <span class="ui-label">Audit Logs</span> · URL: <code>/admin/audit</code></p>
+
+        <p>
+          The audit log records sign-ins, enrolment actions, OIDC events, user management, and security changes
+          across the entire platform. Administrators have full read access.
+        </p>
+
+        <h3>Summary filter cards</h3>
+        <ul>
+          <li><strong>Total events</strong> — all audit records (click to reset filters)</li>
+          <li><strong>Today</strong> — events from the current day</li>
+          <li><strong>Successful</strong> — success and approved outcomes</li>
+          <li><strong>Failed / blocked</strong> — failures, rejections, and lockouts</li>
+        </ul>
+
+        <h3>Search and filter</h3>
+        <ol class="steps">
+          <li>Use the search box to find events by email, eID, action name, or details text.</li>
+          <li>Apply filters: outcome, action type, date range, actor role.</li>
+          <li>Click a row to expand full event details.</li>
+          <li>Use pagination at the bottom for large result sets.</li>
+          <li>Click <span class="ui-label">Refresh logs</span> to load the latest events.</li>
+        </ol>
+
+        <h3>Events you should monitor as administrator</h3>
+        <table>
+          <tr><th>Action</th><th>Meaning</th></tr>
+          <tr><td><code>SYSTEM_USER_CREATED</code></td><td>New PSC operator onboarded</td></tr>
+          <tr><td><code>SYSTEM_USER_STATUS_CHANGE</code></td><td>Staff account activated or deactivated</td></tr>
+          <tr><td><code>SYSTEM_LOGIN</code> / <code>VERIFY_SYSTEM_MFA</code></td><td>Staff sign-in activity</td></tr>
+          <tr><td><code>OIDC_TOKEN_ISSUED</code></td><td>Citizen or RP federation login</td></tr>
+          <tr><td><code>PROCESS_ENROLMENT</code></td><td>PSC enrolment decisions</td></tr>
+        </table>
+
+        <div class="note">
+          Audit details never show passwords or OTP codes. If you investigate a security incident, note the
+          timestamp and action type, then contact IT support with those references.
+        </div>
+      </section>
+
+      <section id="oversight">
+        <h2>9. Enrolment oversight</h2>
+        <p>
+          System Administrators monitor enrolment volume but do not replace PSC operators for processing applications.
+        </p>
+
+        <h3>What you can do</h3>
+        <ul>
+          <li>See <strong>Pending enrolments</strong> count on the admin dashboard</li>
+          <li>Open the PSC enrolment queue via the dashboard quick action (<code>/psc/enrolments</code>)</li>
+          <li>Review related events in audit logs (<code>PROCESS_ENROLMENT</code>, <code>ASSISTED_ENROLMENT</code>)</li>
+        </ul>
+
+        <h3>What PSC operators do instead</h3>
+        <ul>
+          <li>Approve, reject, escalate, or request documents on citizen applications</li>
+          <li>In-person counter enrolment</li>
+          <li>Fraud review and UIN reconciliation</li>
+        </ul>
+
+        <div class="note">
+          For step-by-step enrolment processing instructions, see the
+          <a href="EID_USER_MANUAL_PSC_ADMIN.html">PSC Operator User Manual</a>.
+        </div>
+      </section>
+
+      <section id="profile">
+        <h2>10. Profile &amp; security</h2>
+
+        <h3>Profile page</h3>
+        <p><strong>Menu path:</strong> <span class="ui-label">Profile</span> · URL: <code>/admin/profile</code></p>
+        <ul>
+          <li>View your administrator account details</li>
+          <li>Change your password (current password + new password, minimum 8 characters)</li>
+          <li>Update email or mobile (OTP confirmation required)</li>
+        </ul>
+
+        <h3>Security &amp; MFA</h3>
+        <p><strong>Menu path:</strong> <span class="ui-label">Security &amp; MFA</span> · URL: <code>/admin/settings</code></p>
+
+        <h4>SMS verification</h4>
+        <p>Always enabled for your registered mobile number — used at sign-in.</p>
+
+        <h4>Authenticator app (TOTP) — recommended</h4>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Set up authenticator app</span>.</li>
+          <li>Scan the QR code with Google Authenticator, Microsoft Authenticator, or similar.</li>
+          <li>Enter the 6-digit code to confirm.</li>
+          <li>Your dashboard will show account security as <strong>Protected</strong>.</li>
+        </ol>
+
+        <h4>Passkey (optional)</h4>
+        <ol class="steps">
+          <li>Click <span class="ui-label">Register passkey</span>.</li>
+          <li>Follow your browser prompt (fingerprint, face, or device PIN).</li>
+          <li>Passkeys allow passwordless sign-in on supported devices.</li>
+        </ol>
+
+        <div class="warn">
+          Protect your administrator account with MFA. Compromise of an admin account affects the entire platform.
+        </div>
+      </section>
+
+      <section id="roles">
+        <h2>11. Roles &amp; responsibilities</h2>
+
+        <h3>Platform roles overview</h3>
+        <table>
+          <tr><th>Role</th><th>Portal</th><th>Primary duties</th></tr>
+          <tr><td>Admin</td><td><code>/admin</code></td><td>User management, RP approvals, audit oversight</td></tr>
+          <tr><td>PscAdmin</td><td><code>/psc</code></td><td>Citizen enrolment processing, fraud review</td></tr>
+          <tr><td>Moderator</td><td>Future</td><td>Content moderation (when portal is available)</td></tr>
+          <tr><td>Developer</td><td>Future</td><td>RP integration testing (when portal is available)</td></tr>
+          <tr><td>Citizen</td><td>Public site</td><td>Self-service enrolment and login — not managed via staff toggles</td></tr>
+        </table>
+
+        <h3>What System Administrators can do</h3>
+        <ul>
+          <li>Full access to <code>/admin/*</code> pages</li>
+          <li>Create PSC operators and manage staff account status</li>
+          <li>Approve or reject RP applications and provision sandbox clients</li>
+          <li>Read all audit logs</li>
+          <li>Open PSC portal pages for oversight</li>
+        </ul>
+
+        <h3>What System Administrators cannot do</h3>
+        <ul>
+          <li>Process citizen enrolment decisions (PSC operator function)</li>
+          <li>Retrieve a temporary password or client secret after the one-time banner is dismissed</li>
+          <li>Delete or edit audit log entries</li>
+          <li>Change citizen account lifecycle from the Citizens directory tab (read-only today)</li>
+        </ul>
+
+        <h3>Role separation</h3>
+        <table>
+          <tr><th>Scenario</th><th>Expected behaviour</th></tr>
+          <tr><td>PSC operator opens <code>/admin/users</code></td><td>Access denied — redirect or 403</td></tr>
+          <tr><td>PSC operator opens <code>/admin/audit</code></td><td>Allowed — PSC supervisors may review audit logs</td></tr>
+          <tr><td>Admin calls enrolment process API directly</td><td>Write operations return 403 without PSC role</td></tr>
+        </table>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>12. Troubleshooting common messages</h2>
+        <table>
+          <tr><th>Message you see</th><th>What it means</th><th>What to do</th></tr>
+          <tr>
+            <td>Could not load RP applications</td>
+            <td>API or network error</td>
+            <td>Click <span class="ui-label">Refresh queue</span>. Verify the eID API is running.</td>
+          </tr>
+          <tr>
+            <td>Review notes are required to reject</td>
+            <td>Rejection reason field is empty</td>
+            <td>Enter a clear explanation before rejecting an RP application.</td>
+          </tr>
+          <tr>
+            <td>Could not create PSC admin</td>
+            <td>Validation failed or duplicate email/NID</td>
+            <td>Check all required fields. Verify the email is not already registered.</td>
+          </tr>
+          <tr>
+            <td>Could not update user status</td>
+            <td>Status change failed</td>
+            <td>Refresh the page and try again. You may not deactivate your own account.</td>
+          </tr>
+          <tr>
+            <td>No applications in this view</td>
+            <td>Selected filter has zero matches</td>
+            <td>Try another filter card (for example, <span class="ui-label">All applications</span>).</td>
+          </tr>
+          <tr>
+            <td>Loading admin portal… (stuck)</td>
+            <td>Session expired or network issue</td>
+            <td>Refresh the page. Sign in again if redirected to login.</td>
+          </tr>
+          <tr>
+            <td>Invalid code. Try again.</td>
+            <td>Wrong MFA code</td>
+            <td>Wait for a new TOTP code (30 seconds) and re-enter carefully.</td>
+          </tr>
+        </table>
+
+        <h3>When to contact IT support</h3>
+        <ul>
+          <li>RP approval succeeds but the RP cannot authenticate — check discovery URL and redirect URI match</li>
+          <li>Audit logs show repeated failed admin logins</li>
+          <li>Platform API unavailable for extended period</li>
+          <li>You suspect unauthorized changes to staff accounts</li>
+        </ul>
+      </section>
+
+      <section id="glossary">
+        <h2>13. Glossary</h2>
+        <table>
+          <tr><th>Term</th><th>Meaning</th></tr>
+          <tr><td>eID</td><td>Electronic identity — digital login for citizens and staff (<code>ID-SXM-…</code>)</td></tr>
+          <tr><td>RP / Relying party</td><td>An external service (portal or app) that uses eID for citizen login</td></tr>
+          <tr><td>OIDC</td><td>OpenID Connect — standard protocol used for federation login</td></tr>
+          <tr><td>OAuth client</td><td>Credentials (client ID + secret) issued when an RP application is approved</td></tr>
+          <tr><td>Discovery URL</td><td>Well-known endpoint where RP software reads OIDC configuration</td></tr>
+          <tr><td>Redirect URI</td><td>Allowed callback URL where users return after signing in</td></tr>
+          <tr><td>Scopes</td><td>OAuth permissions (for example, <code>openid profile email</code>)</td></tr>
+          <tr><td>Claims</td><td>Identity attributes released to an RP (for example, name, birthdate)</td></tr>
+          <tr><td>MFA</td><td>Multi-factor authentication — second step after password</td></tr>
+          <tr><td>TOTP</td><td>Authenticator app one-time codes</td></tr>
+          <tr><td>PSC</td><td>Public Service Center — operators who process citizen enrolments</td></tr>
+          <tr><td>Audit trail</td><td>Permanent log of platform actions for compliance</td></tr>
+          <tr><td>Sandbox client</td><td>Test OAuth client provisioned on RP approval for integration testing</td></tr>
+        </table>
+      </section>
+
+      <section id="quick-ref">
+        <h2>14. Quick reference</h2>
+
+        <h3>Key URLs (relative paths)</h3>
+        <table>
+          <tr><th>Page</th><th>Path</th></tr>
+          <tr><td>Admin dashboard</td><td><code>/admin</code></td></tr>
+          <tr><td>System users</td><td><code>/admin/users</code></td></tr>
+          <tr><td>RP applications</td><td><code>/admin/rp-applications</code></td></tr>
+          <tr><td>Audit logs</td><td><code>/admin/audit</code></td></tr>
+          <tr><td>Profile</td><td><code>/admin/profile</code></td></tr>
+          <tr><td>Security &amp; MFA</td><td><code>/admin/settings</code></td></tr>
+          <tr><td>Public RP registration form</td><td><code>/register-rp</code></td></tr>
+        </table>
+
+        <h3>Administrator daily checklist</h3>
+        <div class="card">
+          <label><input type="checkbox"> Sign in with eID/email + MFA</label><br>
+          <label><input type="checkbox"> Check dashboard pending enrolment and audit totals</label><br>
+          <label><input type="checkbox"> Review <span class="ui-label">Pending review</span> RP applications</label><br>
+          <label><input type="checkbox"> Process any PSC operator onboarding requests</label><br>
+          <label><input type="checkbox"> Spot-check audit logs for failed admin logins</label><br>
+          <label><input type="checkbox"> Confirm MFA is enabled on your account</label><br>
+          <label><input type="checkbox"> Sign out when leaving workstation</label>
+        </div>
+
+        <h3>One-time credential reminders</h3>
+        <ul>
+          <li><strong>PSC operator temporary password</strong> — copy from create banner; cannot be retrieved later</li>
+          <li><strong>RP client secret</strong> — copy from approve banner; cannot be retrieved later</li>
+          <li>Always share through secure channels and instruct recipients to change password on first login where applicable</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · System Administrator User Manual v1.0 · March 2026<br>
+    See also: <a href="EID_USER_MANUAL_PSC_ADMIN.html">PSC Operator User Manual</a> ·
+    <a href="EID_USER_MANUAL_CITIZEN.html">Citizen User Manual</a> ·
+    <a href="../user-journey-testing/03-system-admin-journey.html">System Admin Test Guide</a><br>
+    For technical support contact your IT system administrator.
+  </footer>
+
+  <script>
+    const sections = document.querySelectorAll('main section[id]');
+    const tocLinks = document.querySelectorAll('.toc-nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const active = document.querySelector('.toc-nav a[href="#' + entry.target.id + '"]');
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
