@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eID Frontend Deployment Guide — Ubuntu Server</title>
+  <style>
+    :root {
+      --navy: #0b2e4e; --navy-light: #134a75; --green: #1a7f4c; --green-bg: #eef8f1;
+      --red: #b42318; --red-bg: #fef3f2; --amber: #b54708; --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb; --bg: #f4f6f8; --card: #fff; --muted: #5c6773;
+      --border: #dde2ea; --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6; }
+    .doc-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: #fff; padding: 2.5rem 2rem 2rem; }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: .25rem .75rem; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem; }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 780px; }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem; font-size: .875rem; opacity: .85; }
+    .doc-meta a { color: #fff; }
+    .doc-layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: calc(100vh - 200px); }
+    @media (max-width: 900px) { .doc-layout { grid-template-columns: 1fr; } .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); } }
+    .doc-sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; background: #fff; border-right: 1px solid var(--border); padding: 1.25rem 0; }
+    .toc-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem; }
+    .toc-nav a { display: block; padding: .4rem 1.25rem .4rem 1.5rem; color: var(--navy); text-decoration: none; font-size: .875rem; border-left: 3px solid transparent; }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 { color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    .card { background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); border: 1px solid var(--border); }
+    .tip, .note, .warn, .important { padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem; }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .85em; background: #eef1f5; padding: .1rem .35rem; border-radius: 4px; }
+    pre { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .8125rem; background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: .75rem 0 1rem; }
+    pre code { background: none; padding: 0; color: inherit; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); background: #fff; }
+    @media print { .doc-sidebar { display: none; } .doc-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Deployment Guide · Ubuntu Server</div>
+      <h1>Sint Maarten eID Frontend (Next.js) — Server Setup</h1>
+      <p class="subtitle">
+        Step-by-step instructions to upload, build, configure, and run the eID web portal on Ubuntu Linux.
+        Covers Node.js installation, environment variables, production build, systemd, and nginx.
+      </p>
+      <div class="doc-meta">
+        <span><strong>OS:</strong> Ubuntu 22.04 / 24.04 LTS</span>
+        <span><strong>Project:</strong> <code>eid-frontend/</code></span>
+        <span><strong>Runtime:</strong> Node.js 20 · Next.js 16 · Port 3000</span>
+        <span><strong>Related:</strong>
+          <a href="DEPLOY_EID_API_UBUNTU.html">eID API Guide</a> ·
+          <a href="DEPLOY_WSO2_UBUNTU.html">WSO2 Guide</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <a href="#overview">1. Overview</a>
+        <a href="#requirements">2. Server requirements</a>
+        <a href="#prerequisites">3. Install Node.js 20</a>
+        <a href="#upload">4. Upload project</a>
+        <a href="#configure">5. Environment variables</a>
+        <a href="#build">6. Install &amp; build</a>
+        <a href="#systemd">7. systemd service</a>
+        <a href="#nginx">8. nginx reverse proxy</a>
+        <a href="#firewall">9. Firewall</a>
+        <a href="#verify">10. Verify deployment</a>
+        <a href="#routes">11. Key routes</a>
+        <a href="#production">12. Production checklist</a>
+        <a href="#troubleshooting">13. Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <section id="overview">
+        <h2>1. Overview</h2>
+        <p>
+          The eID Frontend is the public web portal for citizens, PSC operators, and system administrators.
+          It is a Next.js application that calls the eID API for all backend operations and handles OIDC login redirects.
+        </p>
+        <div class="card">
+          <table>
+            <thead><tr><th>Item</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Framework</td><td>Next.js 16 (React 19)</td></tr>
+              <tr><td>Default port</td><td><code>3000</code></td></tr>
+              <tr><td>Build command</td><td><code>npm run build</code></td></tr>
+              <tr><td>Start command</td><td><code>npm run start</code></td></tr>
+              <tr><td>Env vars</td><td><code>NEXT_PUBLIC_API_URL</code>, <code>NEXT_PUBLIC_OIDC_URL</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="important">
+          <code>NEXT_PUBLIC_*</code> variables are embedded at <strong>build time</strong>.
+          You must rebuild after changing them. Set them before running <code>npm run build</code>.
+        </div>
+      </section>
+
+      <section id="requirements">
+        <h2>2. Server requirements</h2>
+        <table>
+          <thead><tr><th>Resource</th><th>Minimum</th><th>Recommended</th></tr></thead>
+          <tbody>
+            <tr><td>OS</td><td colspan="2">Ubuntu 22.04 or 24.04 LTS</td></tr>
+            <tr><td>CPU</td><td>2 cores</td><td>4 cores</td></tr>
+            <tr><td>RAM</td><td>2 GB</td><td>4 GB</td></tr>
+            <tr><td>Disk</td><td>5 GB free</td><td>20 GB SSD</td></tr>
+            <tr><td>Dependency</td><td colspan="2">eID API must be running and reachable</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="prerequisites">
+        <h2>3. Install Node.js 20 on Ubuntu</h2>
+        <pre><code># Update system
+sudo apt update &amp;&amp; sudo apt upgrade -y
+sudo apt install -y curl git unzip
+
+# Install Node.js 20 LTS via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Verify
+node --version    # should show v20.x
+npm --version</code></pre>
+
+        <div class="note">
+          Alternatively install via <code>nvm</code> if you need multiple Node versions on the same server.
+          For production, the system-wide NodeSource install is simpler.
+        </div>
+      </section>
+
+      <section id="upload">
+        <h2>4. Upload project to server</h2>
+
+        <h3>Option A — Git clone</h3>
+        <pre><code>sudo mkdir -p /opt/eid-platform
+sudo chown $USER:$USER /opt/eid-platform
+cd /opt/eid-platform
+
+git clone &lt;your-git-repo-url&gt;/eid-frontend.git
+cd eid-frontend</code></pre>
+
+        <h3>Option B — SCP / rsync</h3>
+        <pre><code># SCP
+scp -r /path/to/eid-frontend user@your-server-ip:/opt/eid-platform/
+
+# rsync (excludes node_modules and .next)
+rsync -avz --exclude 'node_modules' --exclude '.next' --exclude '.git' \
+  /path/to/eid-frontend/ \
+  user@your-server-ip:/opt/eid-platform/eid-frontend/</code></pre>
+
+        <div class="tip">
+          Do not upload <code>node_modules</code> or <code>.next</code> from your local machine.
+          Always run <code>npm ci</code> and <code>npm run build</code> on the server.
+        </div>
+      </section>
+
+      <section id="configure">
+        <h2>5. Environment variables</h2>
+        <p>Create the production environment file before building.</p>
+
+        <pre><code>cd /opt/eid-platform/eid-frontend
+nano .env.production</code></pre>
+
+        <h3>5.1 Production values</h3>
+        <pre><code># .env.production
+NEXT_PUBLIC_API_URL=https://eid-api.gov.sx/api
+NEXT_PUBLIC_OIDC_URL=https://eid-api.gov.sx</code></pre>
+
+        <h3>5.2 Development / staging values (reference)</h3>
+        <pre><code># .env.local (development only)
+NEXT_PUBLIC_API_URL=http://localhost:5026/api
+NEXT_PUBLIC_OIDC_URL=http://localhost:5026</code></pre>
+
+        <div class="warn">
+          <strong>URL rules:</strong>
+          <ul>
+            <li><code>NEXT_PUBLIC_API_URL</code> must end with <code>/api</code></li>
+            <li><code>NEXT_PUBLIC_OIDC_URL</code> must NOT have a trailing slash</li>
+            <li>Both must use HTTPS in production</li>
+            <li>Must match <code>Oidc__LoginUrl</code> base in the eID API config (<code>https://eid.gov.sx/login</code>)</li>
+          </ul>
+        </div>
+
+        <h3>5.3 Also create systemd env file</h3>
+        <pre><code>sudo mkdir -p /etc/eid-frontend
+sudo cp .env.production /etc/eid-frontend/env
+sudo chmod 600 /etc/eid-frontend/env</code></pre>
+      </section>
+
+      <section id="build">
+        <h2>6. Install dependencies &amp; build</h2>
+        <pre><code>cd /opt/eid-platform/eid-frontend
+
+# Load production env for build
+export $(grep -v '^#' .env.production | xargs)
+
+# Clean install from lockfile
+npm ci
+
+# Production build (embeds NEXT_PUBLIC_* vars)
+npm run build
+
+# Verify build output
+ls -la .next/</code></pre>
+
+        <h3>6.1 Test run (manual, before systemd)</h3>
+        <pre><code>cd /opt/eid-platform/eid-frontend
+export $(grep -v '^#' .env.production | xargs)
+PORT=3000 npm run start</code></pre>
+        <p>In another terminal:</p>
+        <pre><code>curl -s -o /dev/null -w "HTTP %{http_code}\n" http://127.0.0.1:3000/login</code></pre>
+        <p>Press <kbd>Ctrl+C</kbd> to stop once verified.</p>
+
+        <h3>6.2 Set file ownership</h3>
+        <pre><code>sudo chown -R www-data:www-data /opt/eid-platform/eid-frontend</code></pre>
+      </section>
+
+      <section id="systemd">
+        <h2>7. systemd service</h2>
+        <pre><code>sudo nano /etc/systemd/system/eid-frontend.service</code></pre>
+
+        <pre><code>[Unit]
+Description=Sint Maarten eID Frontend (Next.js)
+After=network.target eid-api.service
+Wants=eid-api.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/eid-platform/eid-frontend
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=/etc/eid-frontend/env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=10
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/eid-platform/eid-frontend
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+        <pre><code>sudo systemctl daemon-reload
+sudo systemctl enable eid-frontend
+sudo systemctl start eid-frontend
+sudo systemctl status eid-frontend
+
+# Live logs
+sudo journalctl -u eid-frontend -f</code></pre>
+      </section>
+
+      <section id="nginx">
+        <h2>8. nginx reverse proxy</h2>
+        <pre><code>sudo apt install -y nginx
+sudo nano /etc/nginx/sites-available/eid-frontend</code></pre>
+
+        <pre><code>server {
+    listen 80;
+    server_name eid.gov.sx;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name eid.gov.sx;
+
+    ssl_certificate     /etc/ssl/certs/eid.gov.sx.crt;
+    ssl_certificate_key /etc/ssl/private/eid.gov.sx.key;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 60s;
+    }
+
+    # Next.js static assets (optional cache headers)
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_cache_valid 200 365d;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+}</code></pre>
+
+        <pre><code>sudo ln -s /etc/nginx/sites-available/eid-frontend /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+        <div class="tip">
+          Free TLS with Let's Encrypt:
+          <code>sudo apt install certbot python3-certbot-nginx &amp;&amp; sudo certbot --nginx -d eid.gov.sx</code>
+        </div>
+      </section>
+
+      <section id="firewall">
+        <h2>9. Firewall</h2>
+        <pre><code>sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+sudo ufw status</code></pre>
+        <p>Port 3000 stays internal. Public access is through nginx on port 443 only.</p>
+      </section>
+
+      <section id="verify">
+        <h2>10. Verify deployment</h2>
+        <pre><code># Service status
+sudo systemctl is-active eid-frontend
+
+# Local check
+curl -s -o /dev/null -w "HTTP %{http_code}\n" http://127.0.0.1:3000/login
+
+# Public HTTPS check
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://eid.gov.sx/login
+
+# Confirm API connectivity from browser DevTools Network tab:
+# requests should go to https://eid-api.gov.sx/api/...</code></pre>
+
+        <h3>Align with eID API config</h3>
+        <p>Ensure the eID API has this setting (in <code>/etc/eid-api/env</code>):</p>
+        <pre><code>Oidc__LoginUrl=https://eid.gov.sx/login</code></pre>
+        <p>Restart the API after changing:</p>
+        <pre><code>sudo systemctl restart eid-api</code></pre>
+      </section>
+
+      <section id="routes">
+        <h2>11. Key routes</h2>
+        <table>
+          <thead><tr><th>Route</th><th>Purpose</th><th>Audience</th></tr></thead>
+          <tbody>
+            <tr><td><code>/login</code></td><td>Login page (password, MFA, OIDC broker entry)</td><td>All users</td></tr>
+            <tr><td><code>/enrol</code></td><td>Citizen self-enrolment wizard</td><td>Citizens</td></tr>
+            <tr><td><code>/citizen/dashboard</code></td><td>Citizen portal after login</td><td>Citizens</td></tr>
+            <tr><td><code>/psc/*</code></td><td>PSC operator portal</td><td>PSC staff</td></tr>
+            <tr><td><code>/admin/*</code></td><td>System admin portal</td><td>Administrators</td></tr>
+            <tr><td><code>/sandbox</code></td><td>Developer OIDC sandbox</td><td>Developers</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="production">
+        <h2>12. Production checklist</h2>
+        <div class="card">
+          <label><input type="checkbox"> Node.js 20 installed</label><br>
+          <label><input type="checkbox"> <code>.env.production</code> created with HTTPS API URLs</label><br>
+          <label><input type="checkbox"> <code>npm ci</code> and <code>npm run build</code> completed without errors</label><br>
+          <label><input type="checkbox"> systemd service enabled and running</label><br>
+          <label><input type="checkbox"> nginx configured with valid TLS certificate</label><br>
+          <label><input type="checkbox"> <code>Oidc__LoginUrl</code> in API matches <code>https://eid.gov.sx/login</code></label><br>
+          <label><input type="checkbox"> API CORS allows <code>https://eid.gov.sx</code></label><br>
+          <label><input type="checkbox"> Port 3000 not exposed publicly (nginx only)</label><br>
+          <label><input type="checkbox"> Login page loads and API calls succeed (check browser console)</label><br>
+          <label><input type="checkbox"> WSO2 federation redirects to <code>/login</code> correctly</label>
+        </div>
+
+        <h3>Redeploy after code changes</h3>
+        <pre><code>cd /opt/eid-platform/eid-frontend
+git pull   # or rsync new files
+
+export $(grep -v '^#' .env.production | xargs)
+npm ci
+npm run build
+
+sudo systemctl restart eid-frontend</code></pre>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>13. Troubleshooting</h2>
+        <table>
+          <thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+          <tbody>
+            <tr><td>Build fails</td><td>Check Node version (<code>node -v</code> must be 20+). Delete <code>node_modules</code> and <code>.next</code>, run <code>npm ci</code> again</td></tr>
+            <tr><td>API calls go to localhost</td><td><code>NEXT_PUBLIC_*</code> not set at build time — rebuild with correct <code>.env.production</code></td></tr>
+            <tr><td>502 Bad Gateway</td><td>Frontend not running — <code>sudo systemctl status eid-frontend</code></td></tr>
+            <tr><td>CORS errors in browser</td><td>Add <code>https://eid.gov.sx</code> to API CORS in <code>Program.cs</code>, rebuild API</td></tr>
+            <tr><td>OIDC redirect fails</td><td>Verify <code>Oidc__LoginUrl</code> in API matches frontend URL exactly</td></tr>
+            <tr><td>Permission denied</td><td><code>sudo chown -R www-data:www-data /opt/eid-platform/eid-frontend</code></td></tr>
+            <tr><td>Port 3000 in use</td><td><code>sudo lsof -i :3000</code> — stop conflicting process</td></tr>
+            <tr><td>Static assets 404</td><td>Rebuild: <code>npm run build</code> and restart service</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · eID Frontend Ubuntu Deployment Guide v1.0 · March 2026<br>
+    <a href="DEPLOY_EID_API_UBUNTU.html">eID API Deployment</a> ·
+    <a href="DEPLOY_WSO2_UBUNTU.html">WSO2 Deployment</a>
+  </footer>
+
+</body>
+</html>

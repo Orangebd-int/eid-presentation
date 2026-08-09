@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eID API Deployment Guide — Ubuntu Server</title>
+  <style>
+    :root {
+      --navy: #0b2e4e; --navy-light: #134a75; --green: #1a7f4c; --green-bg: #eef8f1;
+      --red: #b42318; --red-bg: #fef3f2; --amber: #b54708; --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb; --bg: #f4f6f8; --card: #fff; --muted: #5c6773;
+      --border: #dde2ea; --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6; }
+    .doc-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: #fff; padding: 2.5rem 2rem 2rem; }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: .25rem .75rem; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem; }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 780px; }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem; font-size: .875rem; opacity: .85; }
+    .doc-meta a { color: #fff; }
+    .doc-layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: calc(100vh - 200px); }
+    @media (max-width: 900px) { .doc-layout { grid-template-columns: 1fr; } .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); } }
+    .doc-sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; background: #fff; border-right: 1px solid var(--border); padding: 1.25rem 0; }
+    .toc-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem; }
+    .toc-nav a { display: block; padding: .4rem 1.25rem .4rem 1.5rem; color: var(--navy); text-decoration: none; font-size: .875rem; border-left: 3px solid transparent; }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 { color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    .card { background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); border: 1px solid var(--border); }
+    .tip, .note, .warn, .important { padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem; }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .85em; background: #eef1f5; padding: .1rem .35rem; border-radius: 4px; }
+    pre { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .8125rem; background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: .75rem 0 1rem; }
+    pre code { background: none; padding: 0; color: inherit; }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); background: #fff; }
+    @media print { .doc-sidebar { display: none; } .doc-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Deployment Guide · Ubuntu Server</div>
+      <h1>Sint Maarten eID API (.NET) — Server Setup</h1>
+      <p class="subtitle">
+        Step-by-step instructions to upload, build, configure, and run the eID Platform API on Ubuntu Linux.
+        Includes MySQL setup, environment variables, systemd service, nginx reverse proxy, and verification.
+      </p>
+      <div class="doc-meta">
+        <span><strong>OS:</strong> Ubuntu 22.04 / 24.04 LTS</span>
+        <span><strong>Project:</strong> <code>eid-with-dotnet/SintMaarten.EID/</code></span>
+        <span><strong>Runtime:</strong> .NET 10 · Port 5026</span>
+        <span><strong>Related:</strong>
+          <a href="DEPLOY_EID_FRONTEND_UBUNTU.html">eID Frontend Guide</a> ·
+          <a href="DEPLOY_WSO2_UBUNTU.html">WSO2 Guide</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <a href="#overview">1. Overview</a>
+        <a href="#requirements">2. Server requirements</a>
+        <a href="#prerequisites">3. Install .NET 10</a>
+        <a href="#upload">4. Upload project</a>
+        <a href="#mysql">5. MySQL database</a>
+        <a href="#configure">6. Environment configuration</a>
+        <a href="#build">7. Build &amp; publish</a>
+        <a href="#systemd">8. systemd service</a>
+        <a href="#nginx">9. nginx reverse proxy</a>
+        <a href="#firewall">10. Firewall</a>
+        <a href="#verify">11. Verify deployment</a>
+        <a href="#production">12. Production checklist</a>
+        <a href="#troubleshooting">13. Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <section id="overview">
+        <h2>1. Overview</h2>
+        <p>
+          The eID API is the core Identity Provider backend. It handles authentication, MFA, citizen enrolment,
+          OIDC token issuance, and admin operations. It connects to MySQL and serves the eID Frontend and WSO2 broker.
+        </p>
+        <div class="card">
+          <table>
+            <thead><tr><th>Item</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Framework</td><td>ASP.NET Core (.NET 10)</td></tr>
+              <tr><td>Default port</td><td><code>5026</code></td></tr>
+              <tr><td>Project path</td><td><code>SintMaarten.EID/SintMaarten.EID.Api/</code></td></tr>
+              <tr><td>Database</td><td>MySQL — <code>eid_mvp_db</code></td></tr>
+              <tr><td>Migrations</td><td>Applied automatically on startup</td></tr>
+              <tr><td>Swagger (dev)</td><td><code>/swagger</code></td></tr>
+              <tr><td>OIDC discovery</td><td><code>/.well-known/openid-configuration</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="important">
+          Deploy the eID API <strong>before</strong> WSO2 federation setup. WSO2 must reach this API on port 5026.
+        </div>
+      </section>
+
+      <section id="requirements">
+        <h2>2. Server requirements</h2>
+        <table>
+          <thead><tr><th>Resource</th><th>Minimum</th><th>Recommended</th></tr></thead>
+          <tbody>
+            <tr><td>OS</td><td colspan="2">Ubuntu 22.04 or 24.04 LTS</td></tr>
+            <tr><td>CPU</td><td>2 cores</td><td>4 cores</td></tr>
+            <tr><td>RAM</td><td>2 GB</td><td>4 GB</td></tr>
+            <tr><td>Disk</td><td>10 GB free</td><td>50 GB SSD</td></tr>
+            <tr><td>MySQL</td><td colspan="2">8.0+ (same server or remote)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="prerequisites">
+        <h2>3. Install .NET 10 on Ubuntu</h2>
+        <pre><code># Update packages
+sudo apt update &amp;&amp; sudo apt upgrade -y
+sudo apt install -y wget curl git unzip
+
+# Install .NET 10 SDK and ASP.NET Core runtime
+wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+chmod +x dotnet-install.sh
+./dotnet-install.sh --channel 10.0
+
+# Add to PATH permanently
+echo 'export DOTNET_ROOT=$HOME/.dotnet' &gt;&gt; ~/.bashrc
+echo 'export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools' &gt;&gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+# Verify
+dotnet --version
+dotnet --list-runtimes</code></pre>
+
+        <div class="note">
+          For production you only need the ASP.NET Core runtime, but the SDK is required on the build server
+          to run <code>dotnet publish</code>.
+        </div>
+      </section>
+
+      <section id="upload">
+        <h2>4. Upload project to server</h2>
+
+        <h3>Option A — Git clone</h3>
+        <pre><code>sudo mkdir -p /opt/eid-platform
+sudo chown $USER:$USER /opt/eid-platform
+cd /opt/eid-platform
+
+git clone &lt;your-git-repo-url&gt;/eid-with-dotnet.git
+cd eid-with-dotnet/SintMaarten.EID/SintMaarten.EID.Api</code></pre>
+
+        <h3>Option B — SCP / rsync from local machine</h3>
+        <pre><code># SCP
+scp -r /path/to/eid-with-dotnet user@your-server-ip:/opt/eid-platform/
+
+# rsync (excludes bin/obj)
+rsync -avz --exclude 'bin' --exclude 'obj' --exclude '.git' \
+  /path/to/eid-with-dotnet/ \
+  user@your-server-ip:/opt/eid-platform/eid-with-dotnet/</code></pre>
+      </section>
+
+      <section id="mysql">
+        <h2>5. MySQL database setup</h2>
+        <p>Create the eID database and user. The API runs EF Core migrations on first start — you only need an empty database.</p>
+
+        <h3>5.1 Install MySQL (if not already installed)</h3>
+        <pre><code>sudo apt install -y mysql-server
+sudo mysql_secure_installation</code></pre>
+
+        <h3>5.2 Create database and user</h3>
+        <pre><code>sudo mysql -u root -p</code></pre>
+        <p>Then run these SQL commands:</p>
+        <pre><code>CREATE DATABASE IF NOT EXISTS eid_mvp_db
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'eid_mvp_user'@'localhost' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';
+CREATE USER IF NOT EXISTS 'eid_mvp_user'@'127.0.0.1' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD';
+
+GRANT ALL PRIVILEGES ON eid_mvp_db.* TO 'eid_mvp_user'@'localhost';
+GRANT ALL PRIVILEGES ON eid_mvp_db.* TO 'eid_mvp_user'@'127.0.0.1';
+FLUSH PRIVILEGES;
+EXIT;</code></pre>
+
+        <h3>5.3 Create document storage directory</h3>
+        <pre><code>sudo mkdir -p /var/eid/documents
+sudo chown www-data:www-data /var/eid/documents
+sudo chmod 750 /var/eid/documents</code></pre>
+      </section>
+
+      <section id="configure">
+        <h2>6. Environment configuration</h2>
+        <p>
+          ASP.NET Core reads settings from environment variables. Use double underscore (<code>__</code>)
+          as the section separator. Store secrets in a file, not in <code>appsettings.json</code>.
+        </p>
+
+        <h3>6.1 Create environment file</h3>
+        <pre><code>sudo mkdir -p /etc/eid-api
+sudo nano /etc/eid-api/env</code></pre>
+
+        <h3>6.2 Production environment variables</h3>
+        <pre><code># /etc/eid-api/env
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_URLS=http://127.0.0.1:5026
+
+# Database
+ConnectionStrings__DefaultConnection=Server=127.0.0.1;Port=3306;Database=eid_mvp_db;User=eid_mvp_user;Password=CHANGE_ME_STRONG_PASSWORD;
+
+# JWT — generate a random 64+ character secret
+Jwt__Issuer=https://eid-api.gov.sx
+Jwt__Audience=SintMaartenEID.RelyingParties
+Jwt__Secret=REPLACE_WITH_RANDOM_64_CHAR_SECRET
+
+# OIDC — must match your public URLs
+Oidc__Issuer=https://eid-api.gov.sx
+Oidc__LoginUrl=https://eid.gov.sx/login
+Oidc__AuthorizationEndpoint=https://eid-api.gov.sx/connect/authorize
+Oidc__TokenEndpoint=https://eid-api.gov.sx/connect/token
+Oidc__UserinfoEndpoint=https://eid-api.gov.sx/connect/userinfo
+Oidc__JwksUri=https://eid-api.gov.sx/connect/jwks
+Oidc__EndSessionEndpoint=https://eid-api.gov.sx/connect/logout
+
+# Document storage
+EnrolmentDocuments__StorageRoot=/var/eid/documents
+
+# SMS — disable demo mode in production
+SMS__DemoMode=false
+SMS__ApiEndpoint=https://your-sms-provider.example/api
+SMS__ApiKey=YOUR_SMS_API_KEY
+SMS__SenderId=GOVSXM
+SMS__CountryCode=1721
+
+# Civil registry integration
+Key2Data__Mode=live
+Key2Data__BaseUrl=https://api.key2data.gov.sx
+Key2Data__OfflineMode=false</code></pre>
+
+        <pre><code># Secure the env file
+sudo chmod 600 /etc/eid-api/env
+sudo chown root:root /etc/eid-api/env</code></pre>
+
+        <div class="warn">
+          Replace <code>eid-api.gov.sx</code> and <code>eid.gov.sx</code> with your actual domain names.
+          All OIDC URLs must be consistent — mismatched issuer or login URL breaks WSO2 federation.
+        </div>
+      </section>
+
+      <section id="build">
+        <h2>7. Build &amp; publish</h2>
+        <pre><code>cd /opt/eid-platform/eid-with-dotnet/SintMaarten.EID/SintMaarten.EID.Api
+
+# Restore packages and publish Release build
+dotnet restore
+dotnet publish -c Release -o /opt/eid-api/publish
+
+# Set ownership for the service user
+sudo chown -R www-data:www-data /opt/eid-api/publish
+sudo chown -R www-data:www-data /var/eid/documents</code></pre>
+
+        <h3>7.1 Test run (manual, before systemd)</h3>
+        <pre><code># Load env and test
+set -a &amp;&amp; source /etc/eid-api/env &amp;&amp; set +a
+cd /opt/eid-api/publish
+dotnet SintMaarten.EID.Api.dll</code></pre>
+        <p>In another terminal:</p>
+        <pre><code>curl -s http://127.0.0.1:5026/.well-known/openid-configuration | head -5</code></pre>
+        <p>Press <kbd>Ctrl+C</kbd> to stop the test run once verified.</p>
+      </section>
+
+      <section id="systemd">
+        <h2>8. systemd service</h2>
+        <p>Create a systemd unit so the API starts automatically on boot.</p>
+
+        <pre><code>sudo nano /etc/systemd/system/eid-api.service</code></pre>
+
+        <pre><code>[Unit]
+Description=Sint Maarten eID Platform API
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/eid-api/publish
+ExecStart=/home/YOUR_USER/.dotnet/dotnet /opt/eid-api/publish/SintMaarten.EID.Api.dll
+Restart=always
+RestartSec=10
+EnvironmentFile=/etc/eid-api/env
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/eid/documents /opt/eid-api/publish
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+        <div class="note">
+          Replace <code>/home/YOUR_USER/.dotnet/dotnet</code> with the output of <code>which dotnet</code>.
+          If .NET is installed system-wide, use <code>/usr/bin/dotnet</code>.
+        </div>
+
+        <pre><code>sudo systemctl daemon-reload
+sudo systemctl enable eid-api
+sudo systemctl start eid-api
+sudo systemctl status eid-api
+
+# View live logs
+sudo journalctl -u eid-api -f</code></pre>
+      </section>
+
+      <section id="nginx">
+        <h2>9. nginx reverse proxy</h2>
+        <p>Expose the API over HTTPS. The API itself listens on localhost:5026 only.</p>
+
+        <pre><code>sudo apt install -y nginx
+sudo nano /etc/nginx/sites-available/eid-api</code></pre>
+
+        <pre><code>server {
+    listen 80;
+    server_name eid-api.gov.sx;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name eid-api.gov.sx;
+
+    ssl_certificate     /etc/ssl/certs/eid-api.gov.sx.crt;
+    ssl_certificate_key /etc/ssl/private/eid-api.gov.sx.key;
+
+    client_max_body_size 20M;
+
+    location / {
+        proxy_pass http://127.0.0.1:5026;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}</code></pre>
+
+        <pre><code>sudo ln -s /etc/nginx/sites-available/eid-api /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+        <div class="tip">
+          Use Let's Encrypt for free TLS certificates:
+          <code>sudo apt install certbot python3-certbot-nginx &amp;&amp; sudo certbot --nginx -d eid-api.gov.sx</code>
+        </div>
+      </section>
+
+      <section id="firewall">
+        <h2>10. Firewall</h2>
+        <pre><code>sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+sudo ufw status</code></pre>
+        <p>Port 5026 stays internal (localhost only). Public traffic goes through nginx on 443.</p>
+      </section>
+
+      <section id="verify">
+        <h2>11. Verify deployment</h2>
+        <pre><code># Service running
+sudo systemctl is-active eid-api
+
+# OIDC discovery (local)
+curl -s http://127.0.0.1:5026/.well-known/openid-configuration | grep issuer
+
+# OIDC discovery (public HTTPS)
+curl -s https://eid-api.gov.sx/.well-known/openid-configuration | grep issuer
+
+# JWKS endpoint
+curl -s https://eid-api.gov.sx/connect/jwks | head -3
+
+# Swagger (if enabled)
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://eid-api.gov.sx/swagger/index.html</code></pre>
+
+        <h3>OIDC endpoints reference</h3>
+        <table>
+          <thead><tr><th>Endpoint</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>Discovery</td><td><code>/.well-known/openid-configuration</code></td></tr>
+            <tr><td>Authorize</td><td><code>/connect/authorize</code></td></tr>
+            <tr><td>Token</td><td><code>/connect/token</code></td></tr>
+            <tr><td>UserInfo</td><td><code>/connect/userinfo</code></td></tr>
+            <tr><td>JWKS</td><td><code>/connect/jwks</code></td></tr>
+            <tr><td>Logout</td><td><code>/connect/logout</code></td></tr>
+            <tr><td>REST API</td><td><code>/api/*</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="production">
+        <h2>12. Production checklist</h2>
+        <div class="card">
+          <label><input type="checkbox"> MySQL database created and credentials secured</label><br>
+          <label><input type="checkbox"> JWT secret replaced with random 64+ char value</label><br>
+          <label><input type="checkbox"> All OIDC URLs use HTTPS and match public domain</label><br>
+          <label><input type="checkbox"> <code>Oidc__LoginUrl</code> points to live frontend <code>/login</code></label><br>
+          <label><input type="checkbox"> <code>SMS__DemoMode=false</code> with real SMS provider configured</label><br>
+          <label><input type="checkbox"> Document storage path created with correct permissions</label><br>
+          <label><input type="checkbox"> systemd service enabled and starts on boot</label><br>
+          <label><input type="checkbox"> nginx HTTPS configured with valid certificate</label><br>
+          <label><input type="checkbox"> API listens on <code>127.0.0.1:5026</code> (not publicly exposed)</label><br>
+          <label><input type="checkbox"> CORS updated in <code>Program.cs</code> for production frontend URL</label><br>
+          <label><input type="checkbox"> Swagger disabled in production (<code>Program.cs</code>)</label><br>
+          <label><input type="checkbox"> Migrations applied successfully (check journalctl on first start)</label><br>
+          <label><input type="checkbox"> WSO2 can reach API via <code>host.docker.internal:5026</code></label>
+        </div>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>13. Troubleshooting</h2>
+        <table>
+          <thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+          <tbody>
+            <tr><td>Port 5026 already in use</td><td><code>sudo lsof -i :5026</code> — stop duplicate process or old instance</td></tr>
+            <tr><td>Migration failed on startup</td><td>Check DB credentials in <code>/etc/eid-api/env</code>. Verify user has GRANT on <code>eid_mvp_db</code></td></tr>
+            <tr><td>502 Bad Gateway from nginx</td><td>API not running — <code>sudo systemctl status eid-api</code></td></tr>
+            <tr><td>dotnet command not found in systemd</td><td>Use full path from <code>which dotnet</code> in ExecStart</td></tr>
+            <tr><td>CORS errors in browser</td><td>Add production frontend URL to CORS policy in <code>Program.cs</code>, rebuild and redeploy</td></tr>
+            <tr><td>WSO2 cannot reach API</td><td>Ensure API binds to <code>0.0.0.0:5026</code> or use nginx internal proxy; check UFW rules</td></tr>
+            <tr><td>Permission denied on documents</td><td><code>sudo chown www-data:www-data /var/eid/documents</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · eID API Ubuntu Deployment Guide v1.0 · March 2026<br>
+    <a href="DEPLOY_EID_FRONTEND_UBUNTU.html">eID Frontend Deployment</a> ·
+    <a href="DEPLOY_WSO2_UBUNTU.html">WSO2 Deployment</a>
+  </footer>
+
+</body>
+</html>

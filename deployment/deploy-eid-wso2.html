@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WSO2 Deployment Guide — Ubuntu Server</title>
+  <style>
+    :root {
+      --navy: #0b2e4e; --navy-light: #134a75; --green: #1a7f4c; --green-bg: #eef8f1;
+      --red: #b42318; --red-bg: #fef3f2; --amber: #b54708; --amber-bg: #fff8eb;
+      --blue-bg: #eef4fb; --bg: #f4f6f8; --card: #fff; --muted: #5c6773;
+      --border: #dde2ea; --sidebar-w: 280px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: #1a1a1a; line-height: 1.6; }
+    .doc-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: #fff; padding: 2.5rem 2rem 2rem; }
+    .doc-header-inner { max-width: 1200px; margin: 0 auto; }
+    .doc-badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: .25rem .75rem; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .75rem; }
+    .doc-header h1 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .doc-header .subtitle { margin: 0; opacity: .92; max-width: 780px; }
+    .doc-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem; font-size: .875rem; opacity: .85; }
+    .doc-meta a { color: #fff; }
+    .doc-layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: calc(100vh - 200px); }
+    @media (max-width: 900px) { .doc-layout { grid-template-columns: 1fr; } .doc-sidebar { position: static !important; height: auto !important; border-right: none; border-bottom: 1px solid var(--border); } }
+    .doc-sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; background: #fff; border-right: 1px solid var(--border); padding: 1.25rem 0; }
+    .toc-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 1.25rem .75rem; }
+    .toc-nav a { display: block; padding: .4rem 1.25rem .4rem 1.5rem; color: var(--navy); text-decoration: none; font-size: .875rem; border-left: 3px solid transparent; }
+    .toc-nav a:hover { background: var(--blue-bg); }
+    .doc-main { padding: 1.5rem 2rem 3rem; min-width: 0; }
+    section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+    h2 { color: var(--navy); font-size: 1.35rem; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 1.5rem 0 .65rem; }
+    p { margin: 0 0 .85rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.35rem; }
+    li { margin-bottom: .45rem; }
+    a { color: var(--navy-light); }
+    .card { background: var(--card); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); border: 1px solid var(--border); }
+    .tip, .note, .warn, .important { padding: .85rem 1rem; margin: 1rem 0; border-radius: 8px; font-size: .925rem; }
+    .tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+    .note { background: var(--blue-bg); border-left: 4px solid var(--navy-light); }
+    .warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+    .important { background: var(--red-bg); border-left: 4px solid var(--red); }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .75rem 0 1rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: #eef1f5; font-weight: 600; }
+    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .85em; background: #eef1f5; padding: .1rem .35rem; border-radius: 4px; }
+    pre { font-family: ui-monospace, "Cascadia Code", monospace; font-size: .8125rem; background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: .75rem 0 1rem; }
+    pre code { background: none; padding: 0; color: inherit; }
+    .flow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 1rem 0; font-size: .875rem; }
+    .flow span { background: var(--blue-bg); border: 1px solid #c8d8ea; padding: .35rem .65rem; border-radius: 8px; }
+    .flow .arrow { background: none; border: none; color: var(--muted); }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); background: #fff; }
+    @media print { .doc-sidebar { display: none; } .doc-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="doc-header">
+    <div class="doc-header-inner">
+      <div class="doc-badge">Deployment Guide · Ubuntu Server</div>
+      <h1>WSO2 Identity Server &amp; API Manager — Server Setup</h1>
+      <p class="subtitle">
+        Step-by-step instructions to upload, configure, and run WSO2 on Ubuntu Linux using Docker Compose.
+        Covers MySQL setup, federation to the eID API, firewall, and post-deployment verification.
+      </p>
+      <div class="doc-meta">
+        <span><strong>OS:</strong> Ubuntu 22.04 / 24.04 LTS</span>
+        <span><strong>Project:</strong> <code>onegov-wso2/</code></span>
+        <span><strong>Version:</strong> 1.0 · March 2026</span>
+        <span><strong>Related:</strong>
+          <a href="DEPLOY_EID_API_UBUNTU.html">eID API Guide</a> ·
+          <a href="DEPLOY_EID_FRONTEND_UBUNTU.html">eID Frontend Guide</a>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doc-layout">
+    <aside class="doc-sidebar">
+      <div class="toc-title">Contents</div>
+      <nav class="toc-nav">
+        <a href="#overview">1. Overview</a>
+        <a href="#requirements">2. Server requirements</a>
+        <a href="#prerequisites">3. Install prerequisites</a>
+        <a href="#upload">4. Upload project to server</a>
+        <a href="#mysql">5. MySQL database setup</a>
+        <a href="#configure">6. Configure environment</a>
+        <a href="#deploy">7. Start WSO2 containers</a>
+        <a href="#firewall">8. Firewall (UFW)</a>
+        <a href="#verify">9. Verify deployment</a>
+        <a href="#federation">10. eID federation setup</a>
+        <a href="#production">11. Production hardening</a>
+        <a href="#maintenance">12. Maintenance commands</a>
+        <a href="#troubleshooting">13. Troubleshooting</a>
+      </nav>
+    </aside>
+
+    <main class="doc-main" id="main">
+
+      <section id="overview">
+        <h2>1. Overview</h2>
+        <p>
+          WSO2 acts as the government SSO broker. Relying Party applications authenticate against WSO2,
+          which federates login to the Sint Maarten eID platform.
+        </p>
+        <div class="flow">
+          <span>Government Apps (RP)</span>
+          <span class="arrow">→</span>
+          <span>WSO2 IS :9443</span>
+          <span class="arrow">→</span>
+          <span>eID API :5026</span>
+          <span class="arrow">→</span>
+          <span>eID Frontend :3000</span>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Component</th><th>Image</th><th>Ports</th></tr></thead>
+            <tbody>
+              <tr><td>WSO2 Identity Server</td><td><code>wso2/wso2is:5.11.0</code></td><td>9443 (HTTPS), 9763 (HTTP)</td></tr>
+              <tr><td>WSO2 API Manager</td><td><code>wso2/wso2am:3.2.0</code></td><td>8280, 8243, 8244</td></tr>
+              <tr><td>MySQL</td><td>Host or Docker</td><td>3306</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="important">
+          <strong>Deploy order:</strong> MySQL → eID API → eID Frontend → WSO2 → WSO2 federation config.
+          WSO2 must be able to reach the eID API on the host before federation will work.
+        </div>
+      </section>
+
+      <section id="requirements">
+        <h2>2. Server requirements</h2>
+        <table>
+          <thead><tr><th>Resource</th><th>Minimum (staging)</th><th>Recommended (production)</th></tr></thead>
+          <tbody>
+            <tr><td>OS</td><td colspan="2">Ubuntu 22.04 or 24.04 LTS (64-bit)</td></tr>
+            <tr><td>CPU</td><td>4 cores</td><td>8 cores</td></tr>
+            <tr><td>RAM</td><td>8 GB</td><td>16 GB</td></tr>
+            <tr><td>Disk</td><td>40 GB free</td><td>100 GB SSD</td></tr>
+            <tr><td>Network</td><td colspan="2">Static IP or DNS; ports 9443, 8280 open (or behind reverse proxy)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="prerequisites">
+        <h2>3. Install prerequisites on Ubuntu</h2>
+        <p>SSH into your Ubuntu server as a user with <code>sudo</code> access, then run:</p>
+
+        <h3>3.1 Update system packages</h3>
+        <pre><code>sudo apt update &amp;&amp; sudo apt upgrade -y</code></pre>
+
+        <h3>3.2 Install Docker Engine</h3>
+        <pre><code># Install Docker (official convenience script)
+curl -fsSL https://get.docker.com | sudo sh
+
+# Add your user to the docker group (log out and back in after this)
+sudo usermod -aG docker $USER
+
+# Verify
+docker --version
+docker compose version</code></pre>
+
+        <h3>3.3 Install MySQL client (optional, for DB setup)</h3>
+        <pre><code>sudo apt install -y mysql-client git unzip</code></pre>
+
+        <div class="note">
+          If MySQL runs on the same Ubuntu server (not in Docker), install it with:
+          <code>sudo apt install -y mysql-server</code> and secure it with
+          <code>sudo mysql_secure_installation</code>.
+        </div>
+      </section>
+
+      <section id="upload">
+        <h2>4. Upload project to server</h2>
+        <p>The WSO2 project lives in the <code>onegov-wso2</code> repository. Choose one upload method:</p>
+
+        <h3>Option A — Git clone (recommended)</h3>
+        <pre><code># On the Ubuntu server
+sudo mkdir -p /opt/eid-platform
+sudo chown $USER:$USER /opt/eid-platform
+cd /opt/eid-platform
+
+git clone &lt;your-git-repo-url&gt;/onegov-wso2.git
+cd onegov-wso2</code></pre>
+
+        <h3>Option B — SCP from your local machine</h3>
+        <pre><code># Run from your local machine (replace user@server)
+scp -r /path/to/onegov-wso2 user@your-server-ip:/opt/eid-platform/</code></pre>
+
+        <h3>Option C — rsync (keeps files in sync)</h3>
+        <pre><code>rsync -avz --exclude '.git' \
+  /path/to/onegov-wso2/ \
+  user@your-server-ip:/opt/eid-platform/onegov-wso2/</code></pre>
+
+        <div class="tip">
+          After upload, confirm these files exist on the server:
+          <code>docker-compose.yml</code>, <code>.env</code>, <code>scripts/mysql-init.sql</code>
+        </div>
+      </section>
+
+      <section id="mysql">
+        <h2>5. MySQL database setup</h2>
+        <p>WSO2 requires three MySQL databases. Run the init script against your MySQL server.</p>
+
+        <h3>5.1 Create WSO2 databases and user</h3>
+        <pre><code># If MySQL is on the same Ubuntu server:
+sudo mysql -u root -p &lt; /opt/eid-platform/onegov-wso2/scripts/mysql-init.sql
+
+# Or connect to a remote MySQL host:
+mysql -h YOUR_MYSQL_HOST -u root -p &lt; /opt/eid-platform/onegov-wso2/scripts/mysql-init.sql</code></pre>
+
+        <p>This creates:</p>
+        <ul>
+          <li><code>wso2_carbon_db</code> — Identity Server config &amp; registry</li>
+          <li><code>wso2_apim_db</code> — API Manager data</li>
+          <li><code>wso2_apim_stats_db</code> — API statistics</li>
+          <li>User <code>wso2_user</code> with password <code>wso2_password</code> (change in production)</li>
+        </ul>
+
+        <h3>5.2 Docker network (if MySQL runs in Docker)</h3>
+        <p>If you use a shared Docker MySQL container on network <code>docker-services_laravel_network</code>:</p>
+        <pre><code>docker network create docker-services_laravel_network 2&gt;/dev/null || true</code></pre>
+        <p>If MySQL runs on the Ubuntu host (not Docker), set <code>DB_HOST=host.docker.internal</code> in <code>.env</code> and ensure <code>extra_hosts</code> is present in <code>docker-compose.yml</code> (already configured for <code>wso2-is</code>).</p>
+      </section>
+
+      <section id="configure">
+        <h2>6. Configure environment</h2>
+        <p>Edit the <code>.env</code> file in the project root:</p>
+        <pre><code>cd /opt/eid-platform/onegov-wso2
+cp .env .env.backup   # backup first
+nano .env</code></pre>
+
+        <h3>6.1 Example .env — MySQL on Ubuntu host</h3>
+        <pre><code>WSO2_IS_PORT_HTTPS=9443
+WSO2_IS_PORT_HTTP=9763
+WSO2_APIM_PORT_HTTPS=9443
+WSO2_APIM_PORT_HTTP=8280
+WSO2_APIM_PORT_SERVLET=8243
+
+# MySQL on same Ubuntu server (accessible from Docker via host.docker.internal)
+DB_HOST=host.docker.internal
+DB_PORT=3306
+DB_USERNAME=wso2_user
+DB_PASSWORD=CHANGE_ME_STRONG_PASSWORD</code></pre>
+
+        <h3>6.2 Example .env — MySQL in Docker container</h3>
+        <pre><code>DB_HOST=laravel_shared_mysql
+DB_PORT=3306
+DB_USERNAME=wso2_user
+DB_PASSWORD=CHANGE_ME_STRONG_PASSWORD</code></pre>
+
+        <div class="warn">
+          <strong>Linux note:</strong> The <code>docker-compose.yml</code> already includes
+          <code>extra_hosts: host.docker.internal:host-gateway</code> on the <code>wso2-is</code> service.
+          This is required so WSO2 can reach the eID API running on the Ubuntu host at port 5026.
+        </div>
+      </section>
+
+      <section id="deploy">
+        <h2>7. Start WSO2 containers</h2>
+        <pre><code>cd /opt/eid-platform/onegov-wso2
+
+# Pull images and start in background
+docker compose pull
+docker compose up -d
+
+# Watch startup logs (WSO2 takes 2–3 minutes)
+docker compose logs -f wso2-is</code></pre>
+
+        <p>Wait until you see <code>WSO2 Carbon started</code> in the logs. Press <kbd>Ctrl+C</kbd> to stop following logs.</p>
+
+        <h3>7.1 Check container status</h3>
+        <pre><code>docker compose ps</code></pre>
+        <p>Both <code>wso2-identity-server</code> and <code>wso2-api-manager</code> should show <strong>Up</strong>.</p>
+
+        <h3>7.2 Enable auto-start on reboot</h3>
+        <pre><code># Docker restart policy is already "on-failure" in docker-compose.yml
+# Ensure Docker itself starts on boot:
+sudo systemctl enable docker
+sudo systemctl start docker</code></pre>
+      </section>
+
+      <section id="firewall">
+        <h2>8. Firewall (UFW)</h2>
+        <pre><code># Allow SSH first (do not lock yourself out)
+sudo ufw allow OpenSSH
+
+# WSO2 HTTPS admin &amp; OAuth
+sudo ufw allow 9443/tcp
+
+# WSO2 API Gateway (if exposed directly)
+sudo ufw allow 8280/tcp
+sudo ufw allow 8243/tcp
+
+# Enable firewall
+sudo ufw enable
+sudo ufw status</code></pre>
+        <div class="note">
+          In production, place nginx in front of WSO2 and only expose port 443 publicly.
+          Keep 9443 internal or VPN-only if possible.
+        </div>
+      </section>
+
+      <section id="verify">
+        <h2>9. Verify deployment</h2>
+
+        <h3>9.1 Admin console</h3>
+        <p>Open in browser: <code>https://YOUR_SERVER_IP:9443/carbon/</code></p>
+        <p>Default credentials: <strong>admin</strong> / <strong>admin</strong> — change immediately.</p>
+
+        <h3>9.2 Command-line checks</h3>
+        <pre><code># WSO2 admin login page
+curl -sk https://localhost:9443/carbon/admin/login.jsp -o /dev/null -w "HTTP %{http_code}\n"
+
+# OIDC discovery
+curl -sk https://localhost:9443/oauth2/.well-known/openid-configuration | head -5
+
+# Federation prerequisites (eID API must be running first)
+chmod +x scripts/verify-eid-federation.sh
+./scripts/verify-eid-federation.sh</code></pre>
+
+        <h3>9.3 Access URLs</h3>
+        <table>
+          <thead><tr><th>Service</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>Identity Server Admin</td><td><code>https://&lt;server&gt;:9443/carbon/</code></td></tr>
+            <tr><td>OAuth2 Authorize</td><td><code>https://&lt;server&gt;:9443/oauth2/authorize</code></td></tr>
+            <tr><td>OAuth2 Token</td><td><code>https://&lt;server&gt;:9443/oauth2/token</code></td></tr>
+            <tr><td>API Publisher</td><td><code>https://&lt;server&gt;:9443/publisher</code></td></tr>
+            <tr><td>Developer Portal</td><td><code>https://&lt;server&gt;:9443/devportal</code></td></tr>
+            <tr><td>API Gateway (HTTP)</td><td><code>http://&lt;server&gt;:8280</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="federation">
+        <h2>10. eID federation setup</h2>
+        <p>After eID API and eID Frontend are running, configure WSO2 to broker login to eID.</p>
+
+        <h3>10.1 Register eID as external OIDC IdP</h3>
+        <ol>
+          <li>Log in to <code>https://&lt;server&gt;:9443/carbon/</code></li>
+          <li>Go to <strong>Identity Providers → Add</strong></li>
+          <li>Name: <code>SXM_eID</code>, Authenticator: <strong>OpenID Connect</strong></li>
+          <li>Configure OIDC endpoints (Ubuntu / Docker on same host):</li>
+        </ol>
+        <table>
+          <thead><tr><th>Field</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Client Id</td><td><code>eid-wso2-broker-client</code></td></tr>
+            <tr><td>Client Secret</td><td><code>eid-wso2-secret-2026!</code> (change in production)</td></tr>
+            <tr><td>Authorization Endpoint</td><td><code>http://host.docker.internal:5026/connect/authorize</code></td></tr>
+            <tr><td>Token Endpoint</td><td><code>http://host.docker.internal:5026/connect/token</code></td></tr>
+            <tr><td>UserInfo Endpoint</td><td><code>http://host.docker.internal:5026/connect/userinfo</code></td></tr>
+            <tr><td>JWKS URI</td><td><code>http://host.docker.internal:5026/connect/jwks</code></td></tr>
+            <tr><td>Issuer</td><td><code>http://localhost:5026</code> (or your public API URL)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>10.2 Additional federation steps</h3>
+        <ul>
+          <li>Enable <strong>PKCE (S256)</strong> on the federated OIDC authenticator</li>
+          <li>Create custom claims: <code>uin</code>, <code>citizen_status</code></li>
+          <li>Map eID claims to WSO2 claim URIs</li>
+          <li>Set <code>SXM_eID</code> as the <strong>Default Identity Provider</strong></li>
+        </ul>
+
+        <div class="note">
+          Full step-by-step federation guide with claim mapping tables:
+          see <code>onegov-wso2/EID_FEDERATION_SETUP.md</code> in the repository.
+        </div>
+      </section>
+
+      <section id="production">
+        <h2>11. Production hardening</h2>
+        <ul>
+          <li>Change WSO2 admin password from <code>admin/admin</code> on first login</li>
+          <li>Use strong unique MySQL password for <code>wso2_user</code></li>
+          <li>Replace self-signed cert with a proper TLS certificate (or terminate SSL at nginx)</li>
+          <li>Restrict port 9443 to internal network or VPN</li>
+          <li>Back up Docker volumes: <code>wso2-is-repository</code>, <code>wso2-apim-repository</code></li>
+          <li>Monitor container health: <code>docker compose ps</code> and log rotation</li>
+        </ul>
+      </section>
+
+      <section id="maintenance">
+        <h2>12. Maintenance commands</h2>
+        <pre><code>cd /opt/eid-platform/onegov-wso2
+
+# View logs
+docker compose logs -f wso2-is
+docker compose logs -f wso2-apim
+
+# Restart services
+docker compose restart
+
+# Stop services
+docker compose down
+
+# Update images and restart
+docker compose pull
+docker compose up -d
+
+# Backup WSO2 config volume
+docker run --rm -v onegov-wso2_wso2-is-repository:/data -v $(pwd):/backup \
+  ubuntu tar czf /backup/wso2-is-backup-$(date +%Y%m%d).tar.gz -C /data .</code></pre>
+      </section>
+
+      <section id="troubleshooting">
+        <h2>13. Troubleshooting</h2>
+        <table>
+          <thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+          <tbody>
+            <tr><td>Container exits immediately</td><td>Check logs: <code>docker compose logs wso2-is</code>. Usually MySQL connection failed — verify <code>DB_HOST</code> and credentials.</td></tr>
+            <tr><td>Network not found</td><td>Create it: <code>docker network create docker-services_laravel_network</code></td></tr>
+            <tr><td>WSO2 slow to start</td><td>Normal — wait 2–3 minutes. Check health: <code>docker compose ps</code></td></tr>
+            <tr><td>Cannot reach eID API from WSO2</td><td>Ensure <code>extra_hosts: host.docker.internal:host-gateway</code> is set and eID API listens on <code>0.0.0.0:5026</code></td></tr>
+            <tr><td>Federation token error</td><td>Use <code>host.docker.internal</code> for token/userinfo/jwks endpoints, not <code>localhost</code></td></tr>
+            <tr><td>Port 9443 connection refused</td><td>Container still starting, or UFW blocking — run <code>sudo ufw allow 9443/tcp</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    Government of Sint Maarten · eID Platform · WSO2 Ubuntu Deployment Guide v1.0 · March 2026<br>
+    <a href="DEPLOY_EID_API_UBUNTU.html">eID API Deployment</a> ·
+    <a href="DEPLOY_EID_FRONTEND_UBUNTU.html">eID Frontend Deployment</a>
+  </footer>
+
+</body>
+</html>
