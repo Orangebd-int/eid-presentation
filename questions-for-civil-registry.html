@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Civil Registry Meeting — eID then UIN</title>
+  <style>
+    :root {
+      --navy: #0a3d7a;
+      --deep: #071e3d;
+      --teal: #0f766e;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --bg: #f3f6fb;
+      --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", Calibri, system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; }
+    .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.2rem 3rem; }
+    header {
+      background: linear-gradient(135deg, var(--navy), var(--deep) 60%, var(--teal));
+      color: #fff; border-radius: 16px; padding: 2.1rem 2rem 1.7rem;
+      box-shadow: 0 14px 40px rgba(7, 30, 61, .2);
+    }
+    .kicker { font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; opacity: .82; font-weight: 700; }
+    header h1 { margin: .4rem 0 .45rem; font-size: 1.62rem; letter-spacing: -.02em; }
+    header p { margin: 0; max-width: 44rem; opacity: .93; font-size: .97rem; }
+    .meta { margin-top: 1.1rem; display: flex; flex-wrap: wrap; gap: .45rem; }
+    .chip { font-size: .78rem; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.20); padding: .25rem .7rem; border-radius: 999px; }
+    .part {
+      margin: 1.35rem 0 .7rem;
+      font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--navy); font-weight: 800;
+    }
+    .model { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; margin: 1.2rem 0 .4rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.15rem; }
+    .card h2 { margin: 0 0 .35rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); font-weight: 700; }
+    .card p { margin: 0; color: var(--muted); font-size: .88rem; }
+    .card strong { color: var(--ink); }
+    section.card { margin-bottom: .85rem; }
+    section.card > h2 {
+      color: var(--navy); font-size: 1.05rem; letter-spacing: 0; text-transform: none;
+      display: flex; align-items: center; gap: .55rem; margin: 0 0 .55rem;
+    }
+    .n {
+      width: 1.65rem; height: 1.65rem; border-radius: 7px; background: var(--navy); color: #fff;
+      font-size: .75rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    ol { margin: 0; padding-left: 1.15rem; }
+    ol li { margin: .42rem 0; }
+    .ask { font-size: .86rem; color: var(--muted); margin: 0 0 .65rem; }
+    .out { background: linear-gradient(180deg, #ecfdf5, #fff); border-color: #99f6e4; }
+    .out ul { margin: .35rem 0 0; padding-left: 1.1rem; }
+    .out li { margin: .32rem 0; }
+    footer { text-align: center; color: var(--muted); font-size: .78rem; margin-top: 1.4rem; }
+    @media (max-width: 760px) { .model { grid-template-columns: 1fr; } }
+    @media print { body { background: #fff; } .page { padding: 0; } header { box-shadow: none; } section { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="kicker">Government of Sint Maarten · eID Programme</div>
+      <h1>Civil Registry alignment meeting</h1>
+      <p>
+        We start with <strong>eID</strong>, then <strong>UIN</strong>. The eID Platform
+        <strong>does not store Civil Registry person data</strong> — verify and profile
+        are live lookups only. We also need to agree how <strong>suspend, deactivate, and revoke</strong>
+        work for both eID and UIN.
+      </p>
+      <div class="meta">
+        <span class="chip">For CEO &amp; Civil Registry</span>
+        <span class="chip">eID first · UIN second</span>
+        <span class="chip">August 2026</span>
+      </div>
+    </header>
+
+    <div class="model">
+      <div class="card">
+        <h2>eID</h2>
+        <p>Age 12+: verify, enrol, live profile. Login can be suspended, deactivated, or revoked.</p>
+      </div>
+      <div class="card">
+        <h2>UIN</h2>
+        <p>Issued at birth (BRN-style). Under 12: UIN only. UIN can be suspended or revoked.</p>
+      </div>
+      <div class="card">
+        <h2>Rule</h2>
+        <p>No Civil Registry record is copied into the eID Platform.</p>
+      </div>
+    </div>
+
+    <div class="part">Part A — eID Platform</div>
+
+    <section class="card">
+      <h2><span class="n">1</span> Who can get an eID</h2>
+      <ol>
+        <li>Confirm: <strong>under 12 = no eID</strong>. Cut-off: on the 12th birthday, or the day after?</li>
+        <li>Is Civil Registry the only authority that can say “this person may apply for eID”?</li>
+        <li>If the person already has a UIN from birth, do they keep that same UIN on the eID?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">2</span> Verify before eID enrolment</h2>
+      <p class="ask">We call Civil Registry once, check the person, then continue enrolment. We will not keep your payload.</p>
+      <ol>
+        <li>What do we <strong>send</strong> (national ID, name, date of birth, UIN if they have one, …)?</li>
+        <li>What do you <strong>return</strong> so we can proceed (match yes/no, status, reason)? Which fields are mandatory?</li>
+        <li>On failure (no match, deceased, under 12, mismatch): which <strong>reason codes</strong> should the citizen see?</li>
+        <li>Does this verify call also confirm the <strong>UIN exists and is active</strong> for that person, or is that a separate check?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">3</span> Citizen profile — live from Civil Registry, not stored</h2>
+      <p class="ask">
+        After enrolment, the citizen opens “my data” on the eID Platform. We cannot store
+        Civil Registry records. We only show what you return <strong>at that moment</strong>.
+      </p>
+      <ol>
+        <li>Will Civil Registry provide a <strong>live lookup API</strong> (by national ID and/or UIN) every time the citizen opens their profile?</li>
+        <li>Which fields may we <strong>display</strong>? Which must never leave Civil Registry?</li>
+        <li>May we keep the response <strong>only in the browser session / a few seconds in memory</strong>, or must every screen refresh call you again?</li>
+        <li>If Civil Registry is unavailable, the profile cannot show CR data. Is that accepted, and what message should we show?</li>
+        <li>When data changes at Civil Registry, the next lookup shows the new values. Confirm: <strong>no CR copy is stored</strong> on the eID Platform.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">4</span> eID — suspend, deactivate, revoke</h2>
+      <p class="ask">
+        This is the eID <strong>login / account</strong>, not the UIN itself.
+        We need Civil Registry’s role when a person dies, is flagged, or must lose access.
+      </p>
+      <ol>
+        <li>Which events require <strong>suspend</strong> (temporary, can restore), <strong>deactivate</strong> (closed, may re-enrol later), or <strong>revoke</strong> (permanent, no restore)?</li>
+        <li>For <strong>death</strong>: does Civil Registry notify us, and how soon must eID login stop?</li>
+        <li>Who may request eID suspend/deactivate/revoke: <strong>Civil Registry only</strong>, eID admin, court/police, or the citizen?</li>
+        <li>If Civil Registry sends a status (deceased, invalid, blocked), do we treat that as an <strong>automatic eID stop</strong>, or do we wait for a separate instruction?</li>
+        <li>After suspend: who may <strong>reactivate</strong> the eID, and must Civil Registry confirm again?</li>
+      </ol>
+    </section>
+
+    <div class="part">Part B — UIN (at birth and later)</div>
+
+    <section class="card">
+      <h2><span class="n">5</span> UIN at birth — under 12</h2>
+      <ol>
+        <li>Confirm: at birth registration, Civil Registry requests a UIN <strong>the same day</strong> (BRN-style).</li>
+        <li>What is the <strong>minimum data</strong> needed to issue that UIN?</li>
+        <li>Under 12: <strong>UIN only</strong> — no eID, no login. Agreed?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">6</span> UIN generator — Civil Registry calls us</h2>
+      <p class="ask">Single request or bulk. We issue the UIN and return it. We store the UIN; we do not store Civil Registry person data.</p>
+      <ol>
+        <li>Required fields for <strong>single</strong> and <strong>bulk</strong> requests?</li>
+        <li>Same person sent twice: return <strong>existing UIN</strong> or reject?</li>
+        <li>Bulk: do you need <strong>per-row success/error</strong>?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">7</span> UIN when someone later applies for eID</h2>
+      <p class="ask">The person may already have a UIN from birth. We need one owner of “this UIN is valid”.</p>
+      <ol>
+        <li>At eID enrolment, does <strong>Civil Registry’s verify response</strong> confirm the UIN — or must we also call our own <strong>UIN API</strong>?</li>
+        <li>If Civil Registry has no UIN but we issued one (or the reverse), what is the process before eID is allowed?</li>
+        <li>Can someone enrol for eID <strong>without a birth UIN</strong>, or must a UIN exist first?</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">8</span> UIN — suspend, deactivate, revoke</h2>
+      <p class="ask">
+        UIN is the lifelong number. Stopping a UIN is separate from stopping an eID login —
+        unless you tell us they must always move together.
+      </p>
+      <ol>
+        <li>Which events need UIN <strong>suspend</strong>, <strong>deactivate</strong>, or <strong>revoke</strong> (death, fraud, duplicate, emigration, court order)?</li>
+        <li>How does Civil Registry tell us (API call, file, event)? How quickly after death must the UIN stop being usable?</li>
+        <li>If a UIN is revoked or suspended, must the matching <strong>eID automatically stop</strong> the same day?</li>
+        <li>If someone has a UIN but <strong>no eID yet</strong> (child under 12), does suspend/revoke still apply to the UIN alone?</li>
+        <li>Can a revoked UIN ever be <strong>reissued or reused</strong>, or is that number retired forever?</li>
+      </ol>
+    </section>
+
+    <section class="card out">
+      <h2><span class="n">✓</span> Decisions before we leave</h2>
+      <ul>
+        <li><strong>eID:</strong> under 12 = no eID; verify request/response; live profile, no CR copy stored.</li>
+        <li><strong>eID stop:</strong> suspend vs deactivate vs revoke; who initiates; death timing; reactivation.</li>
+        <li><strong>UIN:</strong> same-day at birth; generator fields; who confirms UIN at eID enrolment.</li>
+        <li><strong>UIN stop:</strong> events, how you notify us, whether eID stops automatically, reuse of numbers.</li>
+      </ul>
+    </section>
+
+    <footer>
+      Sint Maarten eID Platform · Internal CEO briefing · Not a technical specification
+    </footer>
+  </div>
+</body>
+</html>
